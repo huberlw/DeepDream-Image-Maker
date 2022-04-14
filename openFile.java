@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.Scanner;
-import java.util.Random;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
