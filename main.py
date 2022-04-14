@@ -21,6 +21,8 @@ import numpy as np
 import IPython.display as display
 import PIL.Image
 import cv2
+import os
+import sys
 
 
 # Normalize an image
@@ -126,16 +128,21 @@ def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octav
 
 
 """ MAIN LOOP HERE """
-# inputs: 0 - 4
-inputs = ['./input/einstein.jpg', './input/google-ceo.jpg', './input/penguins.jpg', './input/pfp.jpg', './input/snowy-forest.jpg']
+# inputs: 0 - 5 [DEPRECATED]
+inputs = ['./input/einstein.jpg', './input/google-ceo.jpg', './input/penguins.jpg', './input/pfp.jpg', './input/pfp2.jpg', './input/snowy-forest.jpg']
 # layers: 0 - 9
 concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add', 'block_8_add', 'block_9_add', 'block_11_add', 'block_12_add', 'block_14_add', 'block_15_add']
 
+# grab image file path and layers from arguments
+path = sys.argv[1]
+layer1 = int(sys.argv[2])
+layer2 = int(sys.argv[3])
+
 # image to dreamify
-original_img = PIL.Image.open('D:\pictures\self 2.jpg')
+original_img = PIL.Image.open(path)
 
 # layers whose activations to maximize
-names = [concatenated_layers[8], concatenated_layers[9]]
+names = [concatenated_layers[layer1], concatenated_layers[layer2]]
 
 # Convolutional Neural Network Model
 base_model = tf.keras.applications.MobileNetV2(include_top=False, weights='imagenet')
@@ -161,4 +168,4 @@ img = tf.image.resize(img, base_shape)
 img = tf.image.convert_image_dtype(img / 255.0, dtype=tf.uint8)
 
 # create output file
-saved = cv2.imwrite('./output/1dreamified.png', np.array(img))
+saved = cv2.imwrite('./output/' + os.path.splitext(os.path.basename(path))[0] + "_" + names[0] + "_" + names[1] + ".png", np.array(img))
