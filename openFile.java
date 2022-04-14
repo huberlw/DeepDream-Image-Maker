@@ -46,11 +46,12 @@ public class openFile {
             String path = openFile.getSelectedFile().toString();
 
             // start python script with file path and layers as arguments
-            ProcessBuilder processBuilder = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", path, ""+styles[style][0], ""+styles[style][1]);
+            // last argument signals this is not the loop file
+            ProcessBuilder processBuilder = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", path, ""+styles[style][0], ""+styles[style][1], "0");
             Process pythonScript = processBuilder.start();
 
             // read output from script for debugging
-            BufferedReader bufferedReader= new BufferedReader(new InputStreamReader(pythonScript.getErrorStream()));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pythonScript.getErrorStream()));
             String pythonOutput = null;
             while((pythonOutput = bufferedReader.readLine()) != null) {
                 System.out.println(pythonOutput);
