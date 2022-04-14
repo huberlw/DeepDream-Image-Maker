@@ -33,7 +33,7 @@ public class openFile {
             // only accepts whole numbers between 0 and 9
             while(flag) {
                 try {
-                    System.out.println("Enter a style (0-5).");
+                    System.out.println("Enter a style (0-4).");
                     style = Integer.parseInt(userInput.nextLine());
                     if (!(style > -1 && style < 10)) continue;
                     userInput.close();
