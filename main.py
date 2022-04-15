@@ -137,14 +137,18 @@ concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add
 
 # grab image file path and layers from arguments
 filePath = sys.argv[1]
-layer1 = int(sys.argv[2])
-layer2 = int(sys.argv[3])
+layer1 = int(sys.argv[3])
+layer2 = int(sys.argv[4])
 
 # grab extra file info
-fileName = os.path.splitext(os.path.basename(filePath))[0]
+# get name from third argument if exists
+if (sys.argv[2]): 
+    fileName = os.path.splitext(os.path.basename(sys.argv[2]))[0]
+else: 
+    fileName = os.path.splitext(os.path.basename(filePath))[0]
 outputDir = './output'
 # change output folder if loop
-if int(sys.argv[4]) == 1: 
+if int(sys.argv[5]) == 1: 
     outputDir += "-" + fileName
     if not os.path.isdir(outputDir): os.mkdir(outputDir)
 
