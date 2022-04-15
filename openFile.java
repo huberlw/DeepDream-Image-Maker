@@ -10,7 +10,7 @@ public class openFile {
         // create window to select a jpg or png file
         JFileChooser openFile = new JFileChooser(System.getProperty("user.dir") + "\\input");
         openFile.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("JPG or PNG file", "jpg", "png");
+        FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("JPG file", "jpg");
         openFile.addChoosableFileFilter(extensionFilter);
         int fileOpened = openFile.showOpenDialog(null);
         
