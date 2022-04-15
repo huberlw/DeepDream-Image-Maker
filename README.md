@@ -1,2 +1,2 @@
 # DeepDream-Image-Maker
-DeepDream Image Maker for Android Phones
+Branch for storing visual assets and front-end implementation.
