@@ -1,2 +1,2 @@
-# DeepDream-Image-Maker
+# Visual-Assets
 Branch for storing visual assets and front-end implementation. Based on main branch.
