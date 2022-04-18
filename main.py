@@ -128,35 +128,27 @@ def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octav
 
 
 """ MAIN LOOP HERE """
-# [DEPRECATED]
-# inputs: 0 - 5
-# inputs = ['./input/einstein.jpg', './input/google-ceo.jpg', './input/penguins.jpg', './input/pfp.jpg', './input/pfp2.jpg', './input/snowy-forest.jpg']
-
-# layers: 0 - 9
+# layers (0-9): 0 -> 2 | 1 -> 4 | 2 -> 5 | 3 -> 7 | 4 -> 8 | 5 -> 9 | 6 -> 11 | 7 -> 12 | 8 -> 14 | 9 -> 15
 concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add', 'block_8_add', 'block_9_add', 'block_11_add', 'block_12_add', 'block_14_add', 'block_15_add']
 
 # grab image file path and layers from arguments
-filePath = sys.argv[1]
-layer1 = int(sys.argv[3])
-layer2 = int(sys.argv[4])
+file_path = sys.argv[1]
+file_name = os.path.splitext(os.path.basename(file_path))[0]
+layer_1 = int(sys.argv[2])
+layer_2 = int(sys.argv[3])
 
-# grab extra file info
-# get name from third argument if exists
-if (sys.argv[2]): 
-    fileName = os.path.splitext(os.path.basename(sys.argv[2]))[0]
-else: 
-    fileName = os.path.splitext(os.path.basename(filePath))[0]
-outputDir = './output'
-# change output folder if loop
-if int(sys.argv[5]) == 1: 
-    outputDir += "-" + fileName
-    if not os.path.isdir(outputDir): os.mkdir(outputDir)
+output_directory = './output'
+
+# sets output directiory differently if openFileLoop.java
+if int(sys.argv[4]) == 1:
+    output_directory += "-" + file_name
+    if not os.path.isdir(output_directory): os.mkdir(output_directory)
 
 # image to dreamify
-original_img = PIL.Image.open(filePath)
+original_img = PIL.Image.open(file_path)
 
 # layers whose activations to maximize
-names = [concatenated_layers[layer1], concatenated_layers[layer2]]
+names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
 
 # Convolutional Neural Network Model
 base_model = tf.keras.applications.MobileNetV2(include_top=False, weights='imagenet')
@@ -182,4 +174,4 @@ img = tf.image.resize(img, base_shape)
 img = tf.image.convert_image_dtype(img / 255.0, dtype=tf.uint8)
 
 # create output file
-saved = cv2.imwrite(outputDir + '/' + fileName + "_" + names[0] + "_" + names[1] + ".png", np.array(img))
+saved = cv2.imwrite(output_directory + '/' + file_name + "_" + names[0] + "_" + names[1] + ".png", np.array(img))
