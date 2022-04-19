@@ -1,2 +1,2 @@
-# Visual-Assets
-Branch for storing visual assets and front-end implementation. Based on main branch.
+# DeepDream-Image-Maker
+DeepDream Image Maker for Android Phones
