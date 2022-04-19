@@ -1,2 +1,2 @@
 # DeepDream-Image-Maker
-DeepDream Image Maker for Android Phones
+DeepDream Image Maker for Desktop Application
