@@ -137,6 +137,7 @@ file_name = os.path.splitext(os.path.basename(file_path))[0]
 layer_1 = int(sys.argv[2])
 layer_2 = int(sys.argv[3])
 
+if not os.path.isdir('./output'): os.mkdir('./output')
 output_directory = './output'
 
 # sets output directiory differently if openFileLoop.java
@@ -175,3 +176,5 @@ img = tf.image.convert_image_dtype(img / 255.0, dtype=tf.uint8)
 
 # create output file
 saved = cv2.imwrite(output_directory + '/' + file_name + "_" + names[0] + "_" + names[1] + ".png", np.array(img))
+
+print("&&&" + file_name + "_" + names[0] + "_" + names[1] + ".png")
