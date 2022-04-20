@@ -177,7 +177,6 @@ public class OpenFileGUI {
     
     private void setImage(String image) throws IOException {
             openImage = image;
-            System.out.println(openImage);
             ImageIcon imageIcon = new ImageIcon(openImage);
     
             imageSpace.removeAll();
