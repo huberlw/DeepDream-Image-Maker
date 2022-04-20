@@ -140,11 +140,6 @@ layer_2 = int(sys.argv[3])
 if not os.path.isdir('./output'): os.mkdir('./output')
 output_directory = './output'
 
-# sets output directiory differently if openFileLoop.java
-if int(sys.argv[4]) == 1:
-    output_directory += "-" + file_name
-    if not os.path.isdir(output_directory): os.mkdir(output_directory)
-
 # image to dreamify
 original_img = PIL.Image.open(file_path)
 

@@ -143,7 +143,7 @@ public class OpenFileGUI {
         // last argument signals this is not the loop file
         ProcessBuilder startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", 
                                     openImage, layer1, 
-                                    layer2, "0");
+                                    layer2);
         Process pythonScript = startProcess.start();
 
         // read output from script for debugging
