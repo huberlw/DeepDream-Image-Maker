@@ -12,8 +12,8 @@
 }
 
 .container{
-  height: 300px;
-  width: 300px;
+  height: 350px;
+  width: 350px;
   border-radius: 10px;
   background-color: lightgray;
 }
@@ -23,9 +23,35 @@
   font-family: Arial, Helvetica, sans-serif;
   margin-top: 1rem;
   font-weight: bold;
-  color: whitesmoke;
+  color: black;
+}
+
+.img-holder{
+  margin: auto;
+  width: 200px;
+  height: 200px;
+  border: 3px solid black;
+  border-radius: 5px;
+  margin-top: 1rem;
+  margin-bottom: 5px;
+}
+
+.img{
+  width: 200px;
+  height:200px;
+  object-fit: cover;
 }
 
 .open{
   margin-left: 10px;
+}
+
+.text{
+  margin-left: 50px;
+  color: black;
+}
+
+.btn{
+  margin-left: 50px;
+  font-weight: bold;
 }
