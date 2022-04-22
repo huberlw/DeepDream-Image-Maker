@@ -1,7 +1,7 @@
 import './App.css';
 import React, { Component } from 'react'
 
-export class App extends Component {  
+export class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -15,7 +15,7 @@ export class App extends Component {
     this.setState({
       img: e.target.files[0]
     })
-    
+
     const reader = new FileReader();
     reader.onload = () => {
       if(reader.readyState === 2){
@@ -29,7 +29,7 @@ export class App extends Component {
     const uploadData = new FormData();
     uploadData.append('name', this.state.name)
     uploadData.append('img', this.state.img, this.state.img.name)
-    
+
     fetch('http://127.0.0.1:8000/sleepy/', {
       method: 'POST',
       body: uploadData
