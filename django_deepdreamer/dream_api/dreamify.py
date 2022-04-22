@@ -16,11 +16,13 @@
 # THIS FILE HAS BEEN MODIFIED FOR OUR USE AND DOES NOT REPRESENT THE ORIGINAL AUTHORS
 ###
 
+from io import BytesIO
 import tensorflow as tf
 import numpy as np
 import IPython.display as display
 import PIL.Image
 from PIL import Image
+import imghdr
 
 
 # Normalize an image
@@ -100,7 +102,7 @@ class TiledGradients(tf.Module):
         return gradients
 
 
-def run_deep_dream_with_octaves(get_tiled_gradients, img, steps_per_octave=100, step_size=0.01, octaves=range(-5, 1), octave_scale=1.5):
+def run_deep_dream_with_octaves(get_tiled_gradients, img, steps_per_octave=10, step_size=0.01, octaves=range(-3, -2), octave_scale=1.5):
     base_shape = tf.shape(img)
     img = tf.keras.utils.img_to_array(img)
     img = tf.keras.applications.inception_v3.preprocess_input(img)
@@ -129,8 +131,14 @@ def sweet_dreams(image):
     # layers: 0 - 10
     concatenated_layers = ['mixed0', 'mixed1', 'mixed2', 'mixed3', 'mixed4', 'mixed5', 'mixed6', 'mixed7', 'mixed8', 'mixed9', 'mixed10']
 
-    # image to dreamify
+    # image to dreamify 
     original_img = PIL.Image.open(image)
+    if (original_img.format != 'JPEG'): 
+        with BytesIO() as b:
+            original_img.save(b, format='JPEG')
+            b.seek(0)
+            b.getvalue()
+            original_img = PIL.Image.open(image)
 
     # layers whose activations to maximize
     names = [concatenated_layers[3], concatenated_layers[5]]
