@@ -12,8 +12,8 @@
 }
 
 .container{
-  height: 350px;
-  width: 350px;
+  height: 650px;
+  width: 650px;
   border-radius: 10px;
   background-color: lightgray;
 }
@@ -28,8 +28,8 @@
 
 .img-holder{
   margin: auto;
-  width: 200px;
-  height: 200px;
+  width: 500px;
+  height: 500px;
   border: 3px solid black;
   border-radius: 5px;
   margin-top: 1rem;
@@ -37,8 +37,8 @@
 }
 
 .img{
-  width: 200px;
-  height:200px;
+  width: 500px;
+  height:500px;
   object-fit: cover;
 }
 

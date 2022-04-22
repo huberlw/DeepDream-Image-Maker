@@ -34,6 +34,7 @@ export class App extends Component {
       method: 'POST',
       body: uploadData
     })
+    .then(this.setState({tmpImg: 'http://127.0.0.1:8000/images/loading.gif'}))
     .then(res => console.log(res))
     .catch(error => console.log(error))
   }

@@ -4,6 +4,10 @@ from io import BytesIO
 from django.core.files import File
 from django.db import models
 
+# Create your models here.
+def upload_path(instance, filename):
+    return '/'.join("img", [str(instance.name), filename])
+
 class Sleepy(models.Model):
     name = models.CharField(max_length=32, blank=False)
     img = models.ImageField(blank=False, null=True)
