@@ -17,5 +17,5 @@ class Sleepy(models.Model):
         
         buffer = BytesIO()
         pillow.save(buffer, 'PNG')
-        self.img.save('dream.png', File(buffer))
+        self.img.save('dream.png', File(buffer), False)
         
