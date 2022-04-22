@@ -20,8 +20,8 @@ import tensorflow as tf
 import numpy as np
 import IPython.display as display
 import PIL.Image
-from django.core.files import File
-from io import BytesIO
+from PIL import Image
+
 
 # Normalize an image
 def deprocess(img):
@@ -157,15 +157,9 @@ def sweet_dreams(image):
     # make image original size
     img = tf.image.resize(img, base_shape)
     img = tf.image.convert_image_dtype(img / 255.0, dtype=tf.uint8)
-    img = np.array(img)
     
-    """
-    tmp_io = BytesIO()
-    img.save(tmp_io, 'JPEG', quality=100)
+    array = np.array(img)
+    pillow_img = Image.fromarray(array)
     
-    return_img = File(tmp_io, name=image.name)
-    """
-    
-    # create output file
-    return img
+    return pillow_img
     
