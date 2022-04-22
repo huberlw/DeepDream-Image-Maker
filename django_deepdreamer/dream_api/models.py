@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.db import models
 from . import dreamify
 from io import BytesIO
@@ -15,7 +17,14 @@ class Sleepy(models.Model):
     def save(self, *args, **kwargs):
         pillow = dreamify.sweet_dreams(self.img)
         
+        try:
+            os.remove(os.path.join(settings.MEDIA_ROOT, 'dream.png')) 
+        except Exception:
+            pass
+        
         buffer = BytesIO()
         pillow.save(buffer, 'PNG')
         self.img.save('dream.png', File(buffer), False)
+        
+        
         
