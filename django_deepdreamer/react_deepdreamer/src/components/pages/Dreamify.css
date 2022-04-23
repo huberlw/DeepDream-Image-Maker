@@ -1,0 +1,96 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.dream-page{
+    height: 100vh;
+    background: url('../../../../../images/standard/forest.png') center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dream-container{
+    height: 650px;
+    width: 650px;
+    border-radius: 10px;
+    background-color: #cbbcad;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dream-heading{
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: black;
+  }
+  
+  .dream-img-holder{
+    margin: auto;
+    width: 500px;
+    height: 500px;
+    margin-top: 1rem;
+    border: None;
+  }
+  
+  .dream-img{
+    width: 500px;
+    height:500px;
+    object-fit: cover;
+    border: 3px solid black;
+  }
+
+  #input[type="file"] {
+    display: none;
+}
+
+.dream-label {
+    width: 100%;
+    margin-top: 1rem;
+    display: felx;
+    justify-content: center;
+}
+
+.dream-image-upload {
+    width: 200px;
+    height: 50px;
+    background-color: #fff;
+    color: #242424;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px 20px;
+    font-weight: bold;
+    margin: auto;
+}
+  
+  .text {
+    margin-left: 50px;
+    color: black;
+  }
+  
+  .dream-btn {
+    width: 170px;
+    height: 40px;
+    padding: 8px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #242424;
+    background-color: #fff;
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    margin: auto;
+}
+
+.dream-btn:hover {
+    background: #fff;
+    color: #242424;
+    transition: all 0.3s ease-out;
+}
+  

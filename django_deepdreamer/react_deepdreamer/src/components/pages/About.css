@@ -1,0 +1,28 @@
+.about-container{
+    height: 100vh;
+    background: url('../../../../../images/standard/forest.png') center center/cover;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+}
+
+.inside-about {
+    background-color: #fff;
+    justify-content: center;
+    display: flex;
+    width: 50%;
+    height: 25%;
+    margin: auto;
+    margin-top: 150px;
+}
+
+.header {
+    margin: auto;
+}
+
+.inside-about > p {
+    font-size: 24px;
+    color: black;
+}
