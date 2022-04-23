@@ -102,10 +102,10 @@ class TiledGradients(tf.Module):
         return gradients
 
 
-def run_deep_dream_with_octaves(get_tiled_gradients, img, steps_per_octave=10, step_size=0.01, octaves=range(-3, -2), octave_scale=1.5):
+def run_deep_dream_with_octaves(get_tiled_gradients, img, steps_per_octave=100, step_size=0.01, octaves=[-3, 0], octave_scale=1.5):
     base_shape = tf.shape(img)
     img = tf.keras.utils.img_to_array(img)
-    img = tf.keras.applications.inception_v3.preprocess_input(img)
+    img = tf.keras.applications.mobilenet_v2.preprocess_input(img)
 
     initial_shape = img.shape[:-1]
     img = tf.image.resize(img, initial_shape)
@@ -129,7 +129,7 @@ def run_deep_dream_with_octaves(get_tiled_gradients, img, steps_per_octave=10, s
 """ MAIN LOOP HERE """
 def sweet_dreams(image):
     # layers: 0 - 10
-    concatenated_layers = ['mixed0', 'mixed1', 'mixed2', 'mixed3', 'mixed4', 'mixed5', 'mixed6', 'mixed7', 'mixed8', 'mixed9', 'mixed10']
+    concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add', 'block_8_add', 'block_9_add', 'block_11_add', 'block_12_add', 'block_14_add', 'block_15_add']
 
     # image to dreamify 
     original_img = PIL.Image.open(image)
@@ -141,10 +141,10 @@ def sweet_dreams(image):
             original_img = PIL.Image.open(image)
 
     # layers whose activations to maximize
-    names = [concatenated_layers[3], concatenated_layers[5]]
+    names = [concatenated_layers[8], concatenated_layers[9]]
 
     # Convolutional Neural Network Model
-    base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
+    base_model = tf.keras.applications.MobileNetV2(include_top=False, weights='imagenet')
 
     layers = [base_model.get_layer(name).output for name in names]
 
