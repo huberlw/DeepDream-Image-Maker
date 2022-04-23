@@ -47,6 +47,7 @@
     display: none;
 }
 
+
 .dream-label {
     width: 100%;
     margin-top: 1rem;
@@ -55,7 +56,7 @@
 }
 
 .dream-image-upload {
-    width: 200px;
+    width: 100px;
     height: 50px;
     background-color: #fff;
     color: #242424;
@@ -89,8 +90,24 @@
 }
 
 .dream-btn:hover {
-    background: #fff;
+    background: rgb(233, 231, 231);
     color: #242424;
     transition: all 0.3s ease-out;
+}
+
+.dream-image-upload:hover {
+  background: rgb(233, 231, 231);
+  color: #242424;
+  transition: all 0.3s ease-out;
+}
+
+.btnTable {
+  margin-left:110px
+
+}
+
+td{
+  width:225px;
+
 }
   

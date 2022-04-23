@@ -59,11 +59,19 @@ export class Dreamify extends Component {
                 <div className="dream-img-holder">
                     <img src={tmpImg} alt="" id="img" className="dream-img"/>
                 </div>
-                <input type="file" name="img-up" id="input" accept="image\*" onChange={this.imgHandler}/>
-                <label htmlFor="input" className="dream-image-upload">
-                    <i class="fa-regular fa-image"></i>  Choose Image
-                </label>
-                <button className="dream-btn" onClick={this.newDream}>Dreamify</button>
+                <table className ="btnTable">
+                  <tr>
+                    <td>                   
+                        <input type="file" name="img-up" id="input" accept="image\*" onChange={this.imgHandler}/>
+                        <label htmlFor="input" className="dream-image-upload">
+                            <i class="fa-regular fa-image"></i>  Choose Image
+                        </label>
+                      </td>
+                      <td>
+                          <button className="dream-btn" onClick={this.newDream}>Dreamify</button>
+                     </td>
+                  </tr>
+                </table>
             </div>
         </div>
       )
