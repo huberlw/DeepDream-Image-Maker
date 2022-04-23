@@ -7,7 +7,7 @@ export class Dreamify extends Component {
       this.state = {
         img: [],
         done: false,
-        tmpImg: 'http://127.0.0.1:8000/images/standard/blank.png',
+        tmpImg: 'http://127.0.0.1:8000/images/standard/blank.jpg',
       }
     }
   
