@@ -23,10 +23,6 @@ export class App extends Component {
     reader.readAsDataURL(e.target.files[0])
   }
 
-  urlHandler = (e) => {
-    this.setState({tmpImg: e.target.value})
-  }
-
   newDream = () => {
     const uploadData = new FormData();
     uploadData.append('img', this.state.img, this.state.img.name)
@@ -67,9 +63,6 @@ export class App extends Component {
             <input type="file" name="img-up" id="input" accept="image\*" onChange={this.imgHandler}/>
           </label>
           <br/>
-          <label className="text">Image URL
-            <input type="text" placeholder="Enter URL" onChange={this.urlHandler}/>
-          </label>
           <button className="btn" onClick={this.newDream}>Dreamify</button>
         </div>
       </div>
