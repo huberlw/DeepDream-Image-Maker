@@ -1,14 +1,9 @@
 import os
 from django.conf import settings
 from django.db import models
-from django.shortcuts import redirect, render
-from django.template import Template, Context
-from urllib3 import HTTPResponse
 from . import dreamify
 from io import BytesIO
 from django.core.files import File
-from django.db import models
-from django.http import HttpResponseRedirect
 
 # Create your models here.
 class Sleepy(models.Model):
@@ -19,13 +14,15 @@ class Sleepy(models.Model):
         pillow = dreamify.sweet_dreams(self.img)
         
         try:
-            os.remove(os.path.join(settings.MEDIA_ROOT, 'dream.png')) 
+            os.remove(os.path.join(settings.MEDIA_ROOT, self.img.name)) 
         except Exception:
             pass
         
         buffer = BytesIO()
-        pillow.save(buffer, 'PNG')
+        if self.img.name.endswith('.jpg'):
+            pillow.save(buffer, 'JPEG')
+        else:
+            pillow.save(buffer, 'PNG')
         
-        self.img.save('dream.png', File(buffer), False)
+        self.img.save(self.img.name, File(buffer), False)
         self.done = True
-        

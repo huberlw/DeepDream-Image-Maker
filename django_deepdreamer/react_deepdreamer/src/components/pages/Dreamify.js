@@ -7,7 +7,8 @@ export class Dreamify extends Component {
       this.state = {
         img: [],
         done: false,
-        tmpImg: 'http://127.0.0.1:8000/images/standard/blank.jpg',
+        tmpImg: '../../../../images/standard/blank.jpg',
+        path: ''
       }
     }
   
@@ -28,26 +29,13 @@ export class Dreamify extends Component {
       uploadData.append('img', this.state.img, this.state.img.name)
       uploadData.append('done', this.state.done)
       
-      fetch('http://127.0.0.1:8000/sleepy/', {
+      fetch('/sleepy/', {
         method: 'POST',
         body: uploadData
       })
-      .then(this.setState({tmpImg: 'http://127.0.0.1:8000/images/standard/loading.gif'}))
-      .then(res => console.log(res))
-      .then(this.displayImage()) // ABSOLUTE TRASH: REMOVE LATER
+      .then(this.setState({tmpImg: '../../../../images/standard/loading.gif'}))
+      .then(res => this.setState({tmpImg: `../../../../images/${this.state.img.name}`}))
       .catch(error => console.log(error))
-    }
-  
-    // ABSOLUTE TRASH: REMOVE LATER
-    displayImage()
-    {
-      setTimeout(
-        function() {
-          this.setState({tmpImg: 'http://127.0.0.1:8000/images/dream.png'});
-        }
-        .bind(this),
-        45000
-      );
     }
   
     render() {
