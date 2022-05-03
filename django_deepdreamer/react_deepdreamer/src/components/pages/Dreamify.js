@@ -2,6 +2,8 @@ import './Dreamify.css'
 import React, { Component, useState} from 'react'
 import DreamifyBtn from '../dreamify_buttons/DreamifyBtn';
 import DownloadBtn from '../dreamify_buttons/DownloadBtn';
+import UploadBtn from '../dreamify_buttons/UploadBtn'
+import ResetBtn from '../dreamify_buttons/ResetBtn';
 import fileDownload from 'js-file-download'
 import axios from 'axios'
 
@@ -56,6 +58,10 @@ export class Dreamify extends Component {
         fileDownload(res.data, this.state.img.name)
       })
     }
+
+    reset = () => {
+      this.setState({done: false})
+    }
   
     render() {
       const {tmpImg} = this.state
@@ -70,13 +76,10 @@ export class Dreamify extends Component {
                 <table className ="btnTable">
                   <tr>
                     <td>                   
-                        <input type="file" name="img-up" id="input" accept="image\*" onChange={this.imgHandler}/>
-                        <label htmlFor="input" className="dream-image-upload">
-                            <i class="fa-regular fa-image"></i>  Choose Image
-                        </label>
+                          {this.state.done ? <ResetBtn onClick={this.reset}/> : <UploadBtn onChange={this.imgHandler} />}
                       </td>
                       <td>
-                          {this.state.done ? <DownloadBtn onClick={this.download} /> :  <DreamifyBtn onClick={this.newDream} />}
+                          {this.state.done ? <DownloadBtn onClick={this.download} /> : <DreamifyBtn onClick={this.newDream} />}
                      </td>
                   </tr>
                 </table>
