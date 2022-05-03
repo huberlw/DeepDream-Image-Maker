@@ -1,0 +1,15 @@
+.download-btn {
+    width: 170px;
+    height: 40px;
+    padding: 8px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #242424;
+    background-color: #fff;
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    margin: auto;
+}
