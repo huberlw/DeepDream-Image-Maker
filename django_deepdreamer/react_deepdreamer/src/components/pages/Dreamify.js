@@ -51,7 +51,7 @@ export class Dreamify extends Component {
     }
 
     download = () => {
-      axios.get('http://127.0.0.1:8000/images/' + this.state.img.name,  {
+      axios.get(this.state.tmpImg,  {
         responseType: 'blob'
       })
       .then(res => {
