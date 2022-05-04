@@ -1,6 +1,9 @@
 import React, { useState }  from 'react';
 import './Art.css';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
+import fileDownload from 'js-file-download'
+import axios from 'axios'
 
 export default function Art() {
     let data = [
@@ -54,11 +57,21 @@ export default function Art() {
         setModel(true);
     }
 
+    const download = () => {
+        axios.get(tmpImg,  {
+          responseType: 'blob'
+        })
+        .then(res => {
+          fileDownload(res.data, "deepdream-image.png")
+        })
+    }
+
     return (
         <>
         <div className={model ? "model open" : "model"}>
             <img src={tmpImg} />
             <CloseIcon onClick ={() => setModel(false)}/>
+            <ArrowCircleDownIcon className="galDownload" onClick={() => download()}/>
         </div>
         <div className="art">
             {
