@@ -1,6 +1,6 @@
-.dream-btn {
+.DreamifyButtons {
     width: 170px;
-    height: 40px;
+    height: fit-content;
     padding: 8px 20px;
     border-radius: 10px;
     border: none;
@@ -12,4 +12,4 @@
     text-align: center;
     display: block;
     margin: auto;
-}
+    }
