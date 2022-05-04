@@ -69,7 +69,7 @@ export class Dreamify extends Component {
       return (
         <div className="dream-page">
             <div className="dream-container">
-                <h1 className="dream-heading">Dreamify  <i class="fa-solid fa-bed"></i></h1>
+                <h1 className="dream-heading">Dreamify  <i class="fa-solid fa-bed" /></h1>
                 <div className="dream-img-holder">
                     <img src={tmpImg} alt="" id="img" className="dream-img"/>
                 </div>
