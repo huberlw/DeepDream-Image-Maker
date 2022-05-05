@@ -1,71 +1,46 @@
-* {
-    margin: 0;
-    padding: 0;
-}
-
 .dream-page{
-    height: 100vh;
-    background: url('../../../../../images/standard/forest.png') center center/cover;
+  background: url('../../../../../images/standard/forest.png') center center/cover;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-  }
-  
-  .dream-container{
-    height: 650px;
-    width: 650px;
-    border-radius: 10px;
-    background-color: #cbbcad;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .dream-heading{
-    text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
-    margin-top: 1rem;
-    font-weight: bold;
-    color: black;
-  }
-  
-  .dream-img-holder{
-    margin: auto;
-    width: 500px;
-    height: 500px;
-    margin-top: 1rem;
-    border: None;
-  }
-  
-  .dream-img{
-    width: 500px;
-    height:500px;
-    object-fit: cover;
-    border: 3px solid black;
-  }
-
-  #input[type="file"] {
-    display: none;
+    color: white;
+    height: calc(100vh - 4rem);
 }
 
+.dream-container{
+  margin-top: 4.5rem;
+  margin-bottom: 50rem;
+  padding: 1.5rem 1.5rem .5rem 1.5rem;
+  border-radius: 10px;
+  background-color: #1b1919;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction:column;
 
-.dream-label {
-    width: 100%;
-    margin-top: 1rem;
-    display: felx;
-    justify-content: center;
 }
 
-.dream-image-upload {
-    width: 100px;
-    height: 50px;
-    background-color: #fff;
-    color: #242424;
-    border-radius: 10px;
-    text-align: center;
-    cursor: pointer;
-    padding: 8px 20px;
-    font-weight: bold;
-    margin: auto;
+.dream-heading{
+  margin-bottom: 1.5rem;
+  text-align: center;
+  
+  font-size: 3vw;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+}
+
+.dream-img-holder{
+  margin: auto;
+}
+
+.dream-img{
+  width: 25vw;
+  height:25vw;
+  object-fit: cover;
+  border: 3px solid white;
+}
+
+#input[type="file"] {
+  display: none;
 }
   
   .text {
@@ -79,19 +54,35 @@
     transition: all 0.3s ease-out;
 }
 
-.dream-image-upload:hover {
+.dream-btn:hover {
   background: rgb(233, 231, 231);
   color: #242424;
   transition: all 0.3s ease-out;
 }
 
+.dream-image-upload:hover {
+background: rgb(233, 231, 231);
+color: #242424;
+transition: all 0.3s ease-out;
+}
+
 .btnTable {
-  margin-left:110px
+border-spacing: 10px;
+margin: 0.5rem auto 0 auto;
 
 }
 
 td{
-  width:225px;
+border-spacing: 50px;
 
 }
-  
+
+@media screen and (max-width: 960px) {
+  .dream-heading{
+ font-size: 2rem;
+  }
+  .dream-img{
+    width: 16rem;
+    height: 16rem;
+  }
+}

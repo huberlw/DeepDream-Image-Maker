@@ -1,15 +1,10 @@
 .DreamifyButtons {
-    width: 170px;
-    height: fit-content;
-    padding: 8px 20px;
+    background-color: white;
+    color: black;
     border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    color: #242424;
-    background-color: #fff;
-    font-size: 20px;
     text-align: center;
-    display: block;
-    margin: auto;
+    cursor: pointer;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1rem;
     }
