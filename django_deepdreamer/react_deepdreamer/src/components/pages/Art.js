@@ -1,8 +1,7 @@
-import React, { useState }  from 'react'
-import './Art.css'
-import Tooltip from '@mui/material/Tooltip'
-import CloseIcon from '@mui/icons-material/Close'
-import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown'
+import React, { useState }  from 'react';
+import './Art.css';
+import CloseIcon from '@mui/icons-material/Close';
+import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import fileDownload from 'js-file-download'
 import axios from 'axios'
 
@@ -71,12 +70,8 @@ export default function Art() {
         <>
         <div className={model ? "model open" : "model"}>
             <img src={tmpImg} />
-            <Tooltip title="close">
-                <CloseIcon onClick ={() => setModel(false)}/>
-            </Tooltip>
-            <Tooltip title="download">
-                <ArrowCircleDownIcon className="galDownload" onClick={() => download()}/>
-            </Tooltip>
+            <CloseIcon onClick ={() => setModel(false)}/>
+            <ArrowCircleDownIcon className="galDownload" onClick={() => download()}/>
         </div>
         <div className="art">
             {
