@@ -1,27 +1,10 @@
-<<<<<<< Updated upstream:django_deepdreamer/react_deepdreamer/src/components/dreamify_buttons/Buttons.css
 .DreamifyButtons {
-    width: 170px;
-    height: fit-content;
-    padding: 8px 20px;
-=======
-.download-btn {
     background-color: white;
     color: black;
->>>>>>> Stashed changes:django_deepdreamer/react_deepdreamer/src/components/dreamify_buttons/DownloadBtn.css
     border-radius: 10px;
     text-align: center;
     cursor: pointer;
     padding: 10px;
     font-weight: bold;
-<<<<<<< Updated upstream:django_deepdreamer/react_deepdreamer/src/components/dreamify_buttons/Buttons.css
-    color: #242424;
-    background-color: #fff;
-    font-size: 20px;
-    text-align: center;
-    display: block;
-    margin: auto;
-    }
-=======
     font-size: 1rem;
-}
->>>>>>> Stashed changes:django_deepdreamer/react_deepdreamer/src/components/dreamify_buttons/DownloadBtn.css
+    }
