@@ -75,9 +75,9 @@ export class Dreamify extends Component {
                 </div>
                 <table className ="btnTable">
                   <tr>
-                    <td>                
-                          {this.state.done ? <ResetBtn onClick={this.reset}/> : <UploadBtn onChange={this.imgHandler} />}
-                      </td>
+                    <td>                                    
+                          {this.state.done ? < ResetBtn onClick={this.reset}/> : <UploadBtn onChange={this.imgHandler} />}                         
+                    </td>
                       <td>
                           {this.state.done ? <DownloadBtn onClick={this.download} /> : <DreamifyBtn onClick={this.newDream} />}
                      </td>

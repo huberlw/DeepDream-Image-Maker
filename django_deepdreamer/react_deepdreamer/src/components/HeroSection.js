@@ -9,11 +9,7 @@ function HeroSection() {
         <div className='hero-container'>
             <h1>DREAMIFY</h1>
             <p>A single dream is more powerful than a thousand realities - J.R.R. Tolkien</p>
-            <div className="hero-btns">
-                <Button className='btns' buttonStyle='btn--primary' buttonSize='btn--large'>
-                    DREAMIFY
-                </Button>
-            </div>
+            <p>Click on the "Dreamify" tab to get started</p>
         </div>
     </>
   )

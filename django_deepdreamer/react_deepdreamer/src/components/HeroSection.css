@@ -1,5 +1,5 @@
 .hero-container {
-    background: url('../../../../images/standard/forest.png') center center/cover
+    background: url('../../../../images/standard/einstein_forest.png') center center/cover
     no-repeat;
     height: 100vh;
     width: 100%;
@@ -14,7 +14,8 @@
 .hero-container > h1 {
     color: #fff;
     font-size: 100px;
-    margin-top: -100px;
+    margin-top: -200px;
+    text-shadow: 2px 2px #ff18a7;
 }
 
 .hero-container > p {
@@ -22,6 +23,7 @@
     color: #fff;
     font-size: 32px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    text-shadow: 2px 2px #ff18a7;
 }
 
 .hero-btsn {
@@ -30,6 +32,22 @@
 .hero-btns .btn {
     margin: 6px;
 }
+.btns {
+    background-color: rgb(255, 0, 0);
+    color: black;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1rem;
+    }
+
+.btns:hover {
+        background-color: rgb(193, 193, 193);
+        color: #242424;
+        transition: all 0.3s ease-out;
+        }
 
 .fa-play-circle {
     margin-left: 4px;

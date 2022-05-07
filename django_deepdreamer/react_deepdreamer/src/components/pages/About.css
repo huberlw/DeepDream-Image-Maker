@@ -20,6 +20,7 @@
     font-size: 3vw;
     margin-bottom: 1.5rem;
     text-align: center;
+    text-shadow: 2px 2px #ff18a7;
 }
 
 .about-info p {
@@ -27,6 +28,7 @@
     line-height: 150%;
     font-weight: bold;
     text-align: justify;
+    text-shadow: .5px .5px #ff18a7;
 }
 
 @media screen and (max-width: 960px) {

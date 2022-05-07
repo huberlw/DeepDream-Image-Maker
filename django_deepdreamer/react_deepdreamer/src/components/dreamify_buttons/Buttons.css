@@ -7,4 +7,11 @@
     padding: 10px;
     font-weight: bold;
     font-size: 1rem;
+    text-shadow: 0.5px 0.5px #ff18a7;
     }
+
+.DreamifyButtons:hover {
+        background-color: rgb(193, 193, 193);
+        color: #242424;
+        transition: all 0.3s ease-out;
+        }

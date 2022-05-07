@@ -12,14 +12,14 @@ export class App extends Component {
   render() {
     return (
       <>
-      <Router>
-        <Navbar />
+      <Router>       
           <Routes>
             <Route exact path='/' element={<Home/>} />
             <Route exact path='/Dreamify' element={<Dreamify/>} />
             <Route exact path='/Gallery' element={<Gallery/>} />
             <Route exact path='/About' element={<About/>} />
           </Routes>
+          <Navbar />
           <Footer />
         </Router>
       </>
