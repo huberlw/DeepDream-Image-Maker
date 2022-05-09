@@ -35,7 +35,10 @@ public class OpenFileGUI extends JFrame {
 
         // set up menu bar
         JMenuBar menuBar = new JMenuBar();
+        menuBar.setBorderPainted(false);
+        menuBar.setBackground(Color.DARK_GRAY);
         JMenu fileMenu = new JMenu("File");
+        fileMenu.setForeground(Color.WHITE);
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
         fileMenu.add(openItem);
@@ -45,6 +48,7 @@ public class OpenFileGUI extends JFrame {
         
         // set up image space
         imageSpace = new JPanel(new BorderLayout());
+        imageSpace.setBackground(Color.BLACK);
         appWindow.add(imageSpace, BorderLayout.CENTER);
         
 
@@ -54,13 +58,16 @@ public class OpenFileGUI extends JFrame {
         JPanel userOptions = new JPanel(new BorderLayout());
         appWindow.add(userOptions, BorderLayout.SOUTH);
         JPanel mainOptions = new JPanel();
+        mainOptions.setBackground(Color.DARK_GRAY);
         userOptions.add(mainOptions, BorderLayout.CENTER);
 
         // style selection
         JPanel styleSpace = new JPanel();
+        styleSpace.setBackground(Color.DARK_GRAY);
         styleSpace.setLayout(new BoxLayout(styleSpace, BoxLayout.Y_AXIS));
 
         JLabel styleLabel = new JLabel("Style");
+        styleLabel.setForeground(Color.WHITE);
         styleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric", "Custom"});
         styleSelect.setEnabled(false);
@@ -72,8 +79,10 @@ public class OpenFileGUI extends JFrame {
 
         // layer selection
         JPanel layerSpace = new JPanel();
+        layerSpace.setBackground(Color.DARK_GRAY);
         layerSpace.setLayout(new BoxLayout(layerSpace, BoxLayout.Y_AXIS));
         JLabel layerLabel = new JLabel("Layers");
+        layerLabel.setForeground(Color.WHITE);
         layerLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         layerSpace.add(layerLabel);
         layerSpace.add(Box.createVerticalStrut(2));
@@ -96,6 +105,7 @@ public class OpenFileGUI extends JFrame {
 
         // dreamify button
         JPanel dreamSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
+        dreamSpace.setBackground(Color.DARK_GRAY);
         dreamSpace.setLayout(new BoxLayout(dreamSpace, BoxLayout.Y_AXIS));
         dreamSpace.add(Box.createVerticalStrut(1));
         dreamSpace.add(new JLabel(" "), BorderLayout.NORTH);
@@ -106,6 +116,7 @@ public class OpenFileGUI extends JFrame {
         
         // reset button
         JPanel resetSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
+        resetSpace.setBackground(Color.DARK_GRAY);
         resetSpace.setLayout(new BoxLayout(resetSpace, BoxLayout.Y_AXIS));
         resetSpace.add(Box.createVerticalStrut(1));
         resetSpace.add(new JLabel(" "), BorderLayout.NORTH);
