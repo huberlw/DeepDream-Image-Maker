@@ -1,4 +1,3 @@
-
 import java.io.*;
 import java.net.URL;
 import java.nio.file.*;
@@ -20,120 +19,123 @@ public class OpenFileGUI extends JFrame {
     private JComboBox<String> layer1Select;
     private JComboBox<String> layer2Select;
     private static BufferedImage drawImage;
-    private int imgWidth;
-    private int imgHeight;
     private static boolean flag;
 
-    public static void main(String[] args) {
-        
-        OpenFileGUI openFile = new OpenFileGUI();
-        openFile.setupGUI();
-
+    public static void main(String[] args) { 
+        new OpenFileGUI().setupGUI();
     }
 
     private void setupGUI() {
-		
 		// set up app window
-        appWindow = new JFrame("yumemitai");
+        appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
         appWindow.setMinimumSize(new Dimension(300, 300));
         appWindow.setSize(500, 500);
-        appWindow.setLocationRelativeTo(null);
+        appWindow.setLocationRelativeTo(null); // Centers window
 
         // set up menu bar
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
-        menuBar.add(fileMenu);
         fileMenu.add(openItem);
         fileMenu.add(urlItem);
+        menuBar.add(fileMenu);
         appWindow.add(menuBar, BorderLayout.NORTH);
         
         // set up image space
         imageSpace = new JPanel(new BorderLayout());
         appWindow.add(imageSpace, BorderLayout.CENTER);
         
-        // set up user options
+
+        // ---USER OPTIONS---
+
+        // set up options section
         JPanel userOptions = new JPanel(new BorderLayout());
         appWindow.add(userOptions, BorderLayout.SOUTH);
-        
-        // set up main options
         JPanel mainOptions = new JPanel();
-        // mainOptions.setLayout(new BoxLayout(mainOptions, BoxLayout.X_AXIS));
         userOptions.add(mainOptions, BorderLayout.CENTER);
 
-        // section to select styles
+        // style selection
         JPanel styleSpace = new JPanel();
         styleSpace.setLayout(new BoxLayout(styleSpace, BoxLayout.Y_AXIS));
+
         JLabel styleLabel = new JLabel("Style");
-        styleSpace.add(styleLabel);
         styleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-        styleSpace.add(Box.createVerticalStrut(2));
         styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric", "Custom"});
-        styleSpace.add(styleSelect);
         styleSelect.setEnabled(false);
+        
+        styleSpace.add(styleLabel);
+        styleSpace.add(Box.createVerticalStrut(2));
+        styleSpace.add(styleSelect);
         mainOptions.add(styleSpace);
 
-        // section to select layers
+        // layer selection
         JPanel layerSpace = new JPanel();
         layerSpace.setLayout(new BoxLayout(layerSpace, BoxLayout.Y_AXIS));
         JLabel layerLabel = new JLabel("Layers");
-        layerSpace.add(layerLabel);
         layerLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        layerSpace.add(layerLabel);
         layerSpace.add(Box.createVerticalStrut(2));
+
         JPanel layerSelect = new JPanel();
         layerSelect.setLayout(new BoxLayout(layerSelect, BoxLayout.X_AXIS));
+        
         String[] layerOptions = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         layer1Select = new JComboBox<String>(layerOptions);
-        layer2Select = new JComboBox<String>(layerOptions);
-        layerSelect.add(layer1Select);
-        layerSelect.add(layer2Select);
         layer1Select.setSelectedIndex(9);
         layer1Select.setEnabled(false);
+        layer2Select = new JComboBox<String>(layerOptions);
         layer2Select.setSelectedIndex(6);
         layer2Select.setEnabled(false);
+        
+        layerSelect.add(layer1Select);
+        layerSelect.add(layer2Select);
         layerSpace.add(layerSelect, BorderLayout.SOUTH);
         mainOptions.add(layerSpace);
 
-        // button to "dreamify" image
-        JPanel dreamSpace = new JPanel(); 
+        // dreamify button
+        JPanel dreamSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
         dreamSpace.setLayout(new BoxLayout(dreamSpace, BoxLayout.Y_AXIS));
         dreamSpace.add(Box.createVerticalStrut(1));
         dreamSpace.add(new JLabel(" "), BorderLayout.NORTH);
         dreamButton = new JButton("Dreamify");
-        dreamSpace.add(dreamButton, BorderLayout.SOUTH);
         dreamButton.setEnabled(false);
+        dreamSpace.add(dreamButton, BorderLayout.SOUTH);
         mainOptions.add(dreamSpace);
         
-        // button to reset image
-        JPanel resetSpace = new JPanel(); 
+        // reset button
+        JPanel resetSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
         resetSpace.setLayout(new BoxLayout(resetSpace, BoxLayout.Y_AXIS));
         resetSpace.add(Box.createVerticalStrut(1));
         resetSpace.add(new JLabel(" "), BorderLayout.NORTH);
         resetButton = new JButton("Reset");
-        resetSpace.add(resetButton, BorderLayout.SOUTH);
         resetButton.setEnabled(false);
+        resetSpace.add(resetButton, BorderLayout.SOUTH);
         mainOptions.add(resetSpace);
+
+        // ---END USER OPTIONS---
+
 
         appWindow.setVisible(true);
         
-        // add listeners
+        // listeners
         openItem.setActionCommand("open");
         openItem.addActionListener(new ButtonClickListener());
         urlItem.setActionCommand("url");
         urlItem.addActionListener(new ButtonClickListener());
         dreamButton.setActionCommand("dream");
         dreamButton.addActionListener(new ButtonClickListener());
+        resetButton.setActionCommand("reset");
+        resetButton.addActionListener(new ButtonClickListener());
         styleSelect.setActionCommand("style");
         styleSelect.addActionListener(new ButtonClickListener());
         layer1Select.setActionCommand("layer1");
         layer1Select.addActionListener(new ButtonClickListener());
         layer2Select.setActionCommand("layer1");
         layer2Select.addActionListener(new ButtonClickListener());
-        resetButton.setActionCommand("reset");
-        resetButton.addActionListener(new ButtonClickListener());
 
+        // end program when window closes
         appWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event){
                System.exit(0);
@@ -142,27 +144,18 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void dreamify() {
-        if (imgWidth > 1000 || imgHeight > 1000) {
-            int confirm = JOptionPane.showConfirmDialog(appWindow, "This may take a while to dreamify. Are you sure?", 
-                        "Large Image", JOptionPane.WARNING_MESSAGE);
-            if (confirm == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-        }
-        
         // get layes from selection
         String layer1 = String.valueOf(Integer.parseInt(layer1Select.getSelectedItem().toString())-1);
         String layer2 = String.valueOf(Integer.parseInt(layer2Select.getSelectedItem().toString())-1);
         
         // start python script with file path and layers as arguments
-        // last argument signals this is not the loop file
         ProcessBuilder startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", 
                                     openImage, layer1, 
                                     layer2);
         try {
             Process pythonScript = startProcess.start();
 
-            // read output from script for debugging
+            // read output from script for image file path
             BufferedReader debugging = new BufferedReader(new InputStreamReader(pythonScript.getInputStream()));
             String pythonOutput = null;
             while((pythonOutput = debugging.readLine()) != null) {
@@ -173,16 +166,14 @@ public class OpenFileGUI extends JFrame {
                     break;
                 }
             }
-
-
-        } catch (IOException e) {
+        } catch (IOException noScript) {
             JOptionPane.showMessageDialog(appWindow, "Cannot load Python script!", "Error 117", JOptionPane.ERROR_MESSAGE);
         }
 
     }
     
     private void openFile() {
-        // create window to select a jpg or png file
+        // create window to select a "jpg" file
         JFileChooser chooseFile = new JFileChooser(System.getProperty("user.dir"));
         chooseFile.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("JPG file", "jpg");
@@ -196,21 +187,21 @@ public class OpenFileGUI extends JFrame {
     }
     
     private void setImage(String imagePath) {    
+        // don't set image if already set
         if (openImage != null && openImage.equals(imagePath)) {
             return;
         }
-        flag = true;
+
+        flag = true; 
         openImage = imagePath; 
             
         ImageLoader imageLoader = new ImageLoader();
         imageLoader.execute();
 
+        // buttons should be usable now that image exists
         dreamButton.setEnabled(true);
-        styleSelect.setEnabled(true);
-
-        // imgWidth = OpenFileGUI.drawImage.getWidth();
-        // imgHeight = OpenFileGUI.drawImage.getWidth();
-
+        styleSelect.setEnabled(true); 
+        
         appWindow.addComponentListener(new ComponentAdapter( ) {
             public void componentResized(ComponentEvent ev) {
                 loadImage();
@@ -220,12 +211,14 @@ public class OpenFileGUI extends JFrame {
     }
 
     public static void loadImage() {
+        // if new image is being set
         if (flag) {
             try {
                 drawImage = ImageIO.read(new File(OpenFileGUI.openImage));
-            } catch (Exception adwad) {}
+            } catch (Exception fileNotFound) {}
         }
 
+        // get image resolution based on window size
         double drawRatio = 0;
         if (((double)drawImage.getWidth() - imageSpace.getWidth()) > ((double)drawImage.getHeight() - imageSpace.getHeight())) {
             drawRatio = (double)imageSpace.getWidth() / drawImage.getWidth();
@@ -234,11 +227,13 @@ public class OpenFileGUI extends JFrame {
         }
         BufferedImage drawCanvas = new BufferedImage((int)(drawImage.getWidth()*drawRatio), (int)(drawImage.getHeight()*drawRatio), BufferedImage.TYPE_INT_RGB);
         
+        // load image
         Graphics2D draw = drawCanvas.createGraphics();
         draw.drawImage(drawImage, 0, 0, (int)(drawImage.getWidth()*drawRatio), (int)(drawImage.getHeight()*drawRatio), null);
         draw.dispose();
         ImageIcon imageIcon = new ImageIcon(drawCanvas);
 
+        // update image space
         imageSpace.removeAll();
         imageSpace.add(new JLabel(imageIcon));
         imageSpace.revalidate();
@@ -255,19 +250,25 @@ public class OpenFileGUI extends JFrame {
                 openFile();
             } else if (command.equals("url")) {
                 try {
+                    // get image from url
                     String url = JOptionPane.showInputDialog(appWindow, "", "Enter a URL that ends in .jpg", JOptionPane.PLAIN_MESSAGE);
                     if (url != null) {
                         String[] split = url.split("/");
                         String fileName = split[split.length - 1];
                         InputStream inputStream = new URL(url).openStream() ;
+                        File directory = new File("./input/");
+                        if (!directory.exists()){
+                            directory.mkdir();
+                        }
                         Path path = Paths.get("./input/" + fileName);
                         if (!Files.exists(path)) {
                             Files.copy(inputStream, Paths.get("./input/" + fileName));
                         }
-                        baseImage = "./input/download.jpg";
+                        baseImage = "./input/" + fileName;
                         setImage(baseImage);
                     }
-                } catch (IOException ei) {
+                } catch (IOException notValidImage) {
+                    JOptionPane.showMessageDialog(appWindow, "Invalid image url!", "Error 303", JOptionPane.ERROR_MESSAGE);
                 }
             } else if (command.equals("dream")) {
                 dreamify();
@@ -316,6 +317,7 @@ class ImageLoader extends SwingWorker<Void, Void>{
         return null;
     }
 
+    // only start loading image after loading text is displayed
     protected void done() {
         OpenFileGUI.loadImage();
     }
