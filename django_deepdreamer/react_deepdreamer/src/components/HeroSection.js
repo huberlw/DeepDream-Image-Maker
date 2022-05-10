@@ -9,11 +9,9 @@ function HeroSection() {
         <div className='hero-container'>
             <h1>DREAMIFY</h1>
             <p>A single dream is more powerful than a thousand realities - J.R.R. Tolkien</p>
-            <p>Click on the "Dreamify" tab to get started</p>
-            <p></p>
-            <p>DeepDreamer uses Google's DeepDream algorithm to transform your </p>
-   
-            <p>photos into something new and excited</p>
+            <p>DeepDreamer uses Google's DeepDream technology to transform</p> 
+            <p>your photos into something new and exciting!</p>
+            <p>Click the "Dreamify" tab to get started!</p>
         </div>
     </>
   )
