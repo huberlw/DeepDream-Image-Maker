@@ -8,7 +8,8 @@ export default function About() {
                 <div className='about-info'>
                   <h1>ABOUT</h1>
               
-                  <p> Machine learning describes a type of algorithm that learns to predict something.
+                  <p>DeepDreamer uses machine learning to convert a normal image into something new and exciting! 
+                      Machine learning describes a type of algorithm that learns to predict something.
                       We are using Google's DeepDream algorithm, which can classify faces, animals, and other items. 
                       DeepDream takes an input image and gives it to a series of "layers" that will classify the image. 
                       Each layer recognizes different types of features in the input image. 
