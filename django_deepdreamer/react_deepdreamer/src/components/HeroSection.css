@@ -16,6 +16,7 @@
     font-size: 100px;
     margin-top: -200px;
     text-shadow:  2px 2px 5px #7d0581;
+    margin-bottom: 1rem;
 }
 
 .hero-container > p {
@@ -24,6 +25,10 @@
     font-size: 32px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     text-shadow: 2px 2px 5px #7d0581;
+}
+
+.hero-container > p:nth-child(3) {
+    margin-top: 2rem;
 }
 
 .hero-btsn {

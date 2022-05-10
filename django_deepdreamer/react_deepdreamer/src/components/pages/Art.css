@@ -53,6 +53,7 @@
 }
 
 .model.open{
+    margin-top: 4rem;
     visibility: visible;
     opacity: 1;
     transform: scale(1);
@@ -66,7 +67,7 @@
     display: block;
     line-height: 0;
     box-sizing: border-box;
-    padding: 20px 0 20px;
+    padding: 20px 0 85px;
     margin: 0 auto;
 }
 
