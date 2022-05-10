@@ -15,15 +15,15 @@
     color: #fff;
     font-size: 100px;
     margin-top: -200px;
-    text-shadow: 2px 2px #ff18a7;
+    text-shadow:  2px 2px 5px #7d0581;
 }
 
 .hero-container > p {
-    margin-top: 8px;
+    margin-top: 8px;                        
     color: #fff;
     font-size: 32px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    text-shadow: 2px 2px #ff18a7;
+    text-shadow: 2px 2px 5px #7d0581;
 }
 
 .hero-btsn {

@@ -20,15 +20,15 @@
     font-size: 3vw;
     margin-bottom: 1.5rem;
     text-align: center;
-    text-shadow: 2px 2px #ff18a7;
+    text-shadow:  2px 2px 5px #7d0581;
 }
 
 .about-info p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     line-height: 150%;
     font-weight: bold;
     text-align: justify;
-    text-shadow: .5px .5px #ff18a7;
+    text-shadow: .5px .5px #7d0581;
 }
 
 @media screen and (max-width: 960px) {

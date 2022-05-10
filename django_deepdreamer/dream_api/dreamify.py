@@ -103,8 +103,10 @@ class TiledGradients(tf.Module):
 
 
 def run_deep_dream_with_octaves(get_tiled_gradients, img, steps_per_octave=100, step_size=0.01, octaves=[-4, 0], octave_scale=1.5):
-    base_shape = tf.shape(img)
     img = tf.keras.utils.img_to_array(img)
+   
+    base_shape = tf.shape(img)
+    
     img = tf.keras.applications.mobilenet_v2.preprocess_input(img)
 
     initial_shape = img.shape[:-1]
