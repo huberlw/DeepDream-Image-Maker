@@ -1,4 +1,6 @@
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
 import javax.imageio.ImageIO;
@@ -20,13 +22,16 @@ public class OpenFileGUI extends JFrame {
     private JComboBox<String> layer2Select;
     private static BufferedImage drawImage;
     private static boolean flag;
-
+    private boolean advancedOptions;
+    protected File output;
     public static void main(String[] args) { 
         new OpenFileGUI().setupGUI();
     }
 
     private void setupGUI() {
 		// set up app window
+        output = null;
+        advancedOptions = false;
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
         appWindow.setMinimumSize(new Dimension(300, 300));
@@ -38,20 +43,30 @@ public class OpenFileGUI extends JFrame {
         menuBar.setBorderPainted(false);
         menuBar.setBackground(Color.DARK_GRAY);
         JMenu fileMenu = new JMenu("File");
+        JMenu settingsMenu = new JMenu ("Settings");
+        JMenu Help = new JMenu("Help");
         fileMenu.setForeground(Color.WHITE);
+        settingsMenu.setForeground(Color.WHITE);
+        Help.setForeground(Color.WHITE);
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
+        JMenuItem saveItem = new JMenuItem("Save as...");
+        JCheckBoxMenuItem advancedItem = new JCheckBoxMenuItem("Advanced options");
+        JMenuItem documentation = new JMenuItem("How it Works");
+        settingsMenu.add(advancedItem);
+        Help.add(documentation);
         fileMenu.add(openItem);
         fileMenu.add(urlItem);
+        fileMenu.add(saveItem);
         menuBar.add(fileMenu);
+        menuBar.add(settingsMenu);
+        menuBar.add(Help);
         appWindow.add(menuBar, BorderLayout.NORTH);
         
         // set up image space
         imageSpace = new JPanel(new BorderLayout());
         imageSpace.setBackground(Color.BLACK);
         appWindow.add(imageSpace, BorderLayout.CENTER);
-        
-
         // ---USER OPTIONS---
 
         // set up options section
@@ -89,7 +104,8 @@ public class OpenFileGUI extends JFrame {
 
         JPanel layerSelect = new JPanel();
         layerSelect.setLayout(new BoxLayout(layerSelect, BoxLayout.X_AXIS));
-        
+
+        advancedOptions = false;
         String[] layerOptions = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         layer1Select = new JComboBox<String>(layerOptions);
         layer1Select.setSelectedIndex(9);
@@ -104,6 +120,7 @@ public class OpenFileGUI extends JFrame {
         mainOptions.add(layerSpace);
 
         // dreamify button
+
         JPanel dreamSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
         dreamSpace.setBackground(Color.DARK_GRAY);
         dreamSpace.setLayout(new BoxLayout(dreamSpace, BoxLayout.Y_AXIS));
@@ -135,6 +152,12 @@ public class OpenFileGUI extends JFrame {
         openItem.addActionListener(new ButtonClickListener());
         urlItem.setActionCommand("url");
         urlItem.addActionListener(new ButtonClickListener());
+        saveItem.setActionCommand("save");
+        saveItem.addActionListener(new ButtonClickListener());
+        advancedItem.setActionCommand("advanced");
+        advancedItem.addActionListener(new ButtonClickListener());
+        documentation.setActionCommand("documentation");
+        documentation.addActionListener(new ButtonClickListener());
         dreamButton.setActionCommand("dream");
         dreamButton.addActionListener(new ButtonClickListener());
         resetButton.setActionCommand("reset");
@@ -158,29 +181,30 @@ public class OpenFileGUI extends JFrame {
         // get layes from selection
         String layer1 = String.valueOf(Integer.parseInt(layer1Select.getSelectedItem().toString())-1);
         String layer2 = String.valueOf(Integer.parseInt(layer2Select.getSelectedItem().toString())-1);
-        
+        JOptionPane.showMessageDialog(appWindow, "Dreamifying...");
         // start python script with file path and layers as arguments
-        ProcessBuilder startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", 
+        ProcessBuilder startProcess = new ProcessBuilder("python3", System.getProperty("user.dir") + "\\main.py",
                                     openImage, layer1, 
                                     layer2);
         try {
             Process pythonScript = startProcess.start();
-
             // read output from script for image file path
             BufferedReader debugging = new BufferedReader(new InputStreamReader(pythonScript.getInputStream()));
             String pythonOutput = null;
             while((pythonOutput = debugging.readLine()) != null) {
-				if (pythonOutput.contains("&&&")) {
+	    			if (pythonOutput.contains("&&&")) {
                     String dreamImage = pythonOutput.substring(3, pythonOutput.length());
-                    setImage("./output/" + dreamImage);   
+                    setImage("./output/" + dreamImage);
+                    output = new File("./output/" + dreamImage);
                     resetButton.setEnabled(true);
                     break;
                 }
             }
+            JOptionPane.showMessageDialog(appWindow, "Dreamify Complete!");
+
         } catch (IOException noScript) {
             JOptionPane.showMessageDialog(appWindow, "Cannot load Python script!", "Error 117", JOptionPane.ERROR_MESSAGE);
         }
-
     }
     
     private void openFile() {
@@ -211,7 +235,11 @@ public class OpenFileGUI extends JFrame {
 
         // buttons should be usable now that image exists
         dreamButton.setEnabled(true);
-        styleSelect.setEnabled(true); 
+        styleSelect.setEnabled(true);
+        if (advancedOptions) {
+            layer1Select.setEnabled(true);
+            layer2Select.setEnabled(true);
+        }
         
         appWindow.addComponentListener(new ComponentAdapter( ) {
             public void componentResized(ComponentEvent ev) {
@@ -251,70 +279,130 @@ public class OpenFileGUI extends JFrame {
         
         flag = false;
     }
+    private static void openDocumentation() {
+        try {
+            Desktop.getDesktop().browse(new URI("https://ai.googleblog.com/2015/06/inceptionism-going-deeper-into-neural.html"));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private static void saveImage(File output) {
+           JFileChooser fileChooser = new JFileChooser();
+           int returnval = fileChooser.showSaveDialog(imageSpace);
+           if (returnval == JFileChooser.APPROVE_OPTION) {
+               File fileToSave = fileChooser.getSelectedFile();
+
+               try {
+                   BufferedImage img = ImageIO.read(output);
+                   ImageIO.write(img, "png", fileToSave);
+               } catch (IOException e) {
+                   throw new RuntimeException(e);
+               }
+           }
+    }
 
 
     private class ButtonClickListener implements ActionListener{
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-
-            if (command.equals("open")) {
-                openFile();
-            } else if (command.equals("url")) {
-                try {
-                    // get image from url
-                    String url = JOptionPane.showInputDialog(appWindow, "", "Enter a URL that ends in .jpg", JOptionPane.PLAIN_MESSAGE);
-                    if (url != null) {
-                        String[] split = url.split("/");
-                        String fileName = split[split.length - 1];
-                        InputStream inputStream = new URL(url).openStream() ;
-                        File directory = new File("./input/");
-                        if (!directory.exists()){
-                            directory.mkdir();
+            switch(command) {
+                case ("open"):
+                    openFile();
+                    break;
+                case ("url"):
+                    try {
+                        // get image from url
+                        String url = JOptionPane.showInputDialog(appWindow, "", "Enter a URL that ends in .jpg", JOptionPane.PLAIN_MESSAGE);
+                        if (url != null) {
+                            String[] split = url.split("/");
+                            String fileName = split[split.length - 1];
+                            InputStream inputStream = new URL(url).openStream() ;
+                            File directory = new File("./input/");
+                            if (!directory.exists()){
+                                directory.mkdir();
+                            }
+                            Path path = Paths.get("./input/" + fileName);
+                            if (!Files.exists(path)) {
+                                Files.copy(inputStream, Paths.get("./input/" + fileName));
+                            }
+                            baseImage = "./input/" + fileName;
+                            setImage(baseImage);
                         }
-                        Path path = Paths.get("./input/" + fileName);
-                        if (!Files.exists(path)) {
-                            Files.copy(inputStream, Paths.get("./input/" + fileName));
-                        }
-                        baseImage = "./input/" + fileName;
-                        setImage(baseImage);
+                    } catch (IOException notValidImage) {
+                        JOptionPane.showMessageDialog(appWindow, "Invalid image url!", "Error 303", JOptionPane.ERROR_MESSAGE);
                     }
-                } catch (IOException notValidImage) {
-                    JOptionPane.showMessageDialog(appWindow, "Invalid image url!", "Error 303", JOptionPane.ERROR_MESSAGE);
-                }
-            } else if (command.equals("dream")) {
-                dreamify();
-            } else if (command.equals("reset")){
-                setImage(baseImage);
-                resetButton.setEnabled(false);
-            }else if (command.equals("style")) {
-                if (((String)styleSelect.getSelectedItem()).equals("Glitch")) {
-                    layer1Select.setSelectedIndex(9);
-                    layer1Select.setEnabled(false);
-                    layer2Select.setSelectedIndex(6);
-                    layer2Select.setEnabled(false);
-                }
-                else if (((String)styleSelect.getSelectedItem()).equals("Disease")) {
-                    layer1Select.setSelectedIndex(8);
-                    layer1Select.setEnabled(false);
-                    layer2Select.setSelectedIndex(9);
-                    layer2Select.setEnabled(false);
-                }
-                else if (((String)styleSelect.getSelectedItem()).equals("Electric")) {
-                    layer1Select.setSelectedIndex(8);
-                    layer1Select.setEnabled(false);
-                    layer2Select.setSelectedIndex(1);
-                    layer2Select.setEnabled(false);
-                }
-                else {
-                    layer1Select.setEnabled(true);
-                    layer2Select.setEnabled(true);
-                }
+                    break;
+                case ("save"):
+                    if (output != null) {
+                        saveImage(output);
+                    }else {
+
+                        break;
+}
+                case ("advanced"):
+                    if (!styleSelect.isEnabled()) {
+                        if (advancedOptions) {
+                            advancedOptions = false;
+                        } else {
+                            advancedOptions = true;
+
+                        }
+                    } else {
+                        if (layer1Select.isEnabled()) {
+                            advancedOptions = false;
+                            layer1Select.setEnabled(false);
+                            layer2Select.setEnabled(false);
+                        } else {
+                            advancedOptions = true;
+                            layer1Select.setEnabled(true);
+                            layer2Select.setEnabled(true);
+                        }
+                    }
+                    break;
+                case ("documentation"):
+                    openDocumentation();
+                    break;
+                case ("dream"):
+                    dreamify();
+                    break;
+                case ("reset"):
+
+                    setImage(baseImage);
+                    break;
+                case ("style"):
+                    if (((String)styleSelect.getSelectedItem()).equals("Glitch")) {
+                        layer1Select.setSelectedIndex(9);
+                        layer1Select.setEnabled(false);
+                        layer2Select.setSelectedIndex(6);
+                        layer2Select.setEnabled(false);
+                    }
+                    else if (((String)styleSelect.getSelectedItem()).equals("Disease")) {
+                        layer1Select.setSelectedIndex(8);
+                        layer1Select.setEnabled(false);
+                        layer2Select.setSelectedIndex(9);
+                        layer2Select.setEnabled(false);
+                    }
+                    else if (((String)styleSelect.getSelectedItem()).equals("Electric")) {
+                        layer1Select.setSelectedIndex(8);
+                        layer1Select.setEnabled(false);
+                        layer2Select.setSelectedIndex(1);
+                        layer2Select.setEnabled(false);
+                    }
+                    else {
+                        layer1Select.setEnabled(true);
+                        layer2Select.setEnabled(true);
+                    }
+                    break;
+            }
+
             }
 
         }		
      }
 
-}
+
 
 class ImageLoader extends SwingWorker<Void, Void>{
 
