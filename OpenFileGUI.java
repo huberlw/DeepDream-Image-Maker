@@ -13,12 +13,15 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.lang.Math;
+import java.util.Objects;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
     private static String openImage;
     private JFrame appWindow;
     public static JPanel imageSpace;
+    private JPanel layerSpace;
+    private JPanel styleSpace;
     private JButton dreamButton;
     private JButton resetButton;
     private JComboBox<String> styleSelect;
@@ -94,7 +97,6 @@ public class OpenFileGUI extends JFrame {
         userOptions.add(mainOptions, BorderLayout.CENTER);
 
         // style selection
-        JPanel styleSpace = new JPanel();
         styleSpace.setBackground(Color.DARK_GRAY);
         styleSpace.setLayout(new BoxLayout(styleSpace, BoxLayout.Y_AXIS));
 
@@ -110,7 +112,6 @@ public class OpenFileGUI extends JFrame {
         mainOptions.add(styleSpace);
 
         // layer selection
-        JPanel layerSpace = new JPanel();
         layerSpace.setBackground(Color.DARK_GRAY);
         layerSpace.setLayout(new BoxLayout(layerSpace, BoxLayout.Y_AXIS));
         JLabel layerLabel = new JLabel("Layers");
@@ -118,6 +119,7 @@ public class OpenFileGUI extends JFrame {
         layerLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         layerSpace.add(layerLabel);
         layerSpace.add(Box.createVerticalStrut(2));
+        layerSpace.setVisible(false);
 
         JPanel layerSelect = new JPanel();
         layerSelect.setLayout(new BoxLayout(layerSelect, BoxLayout.X_AXIS));
@@ -337,18 +339,22 @@ public class OpenFileGUI extends JFrame {
                         break;
                     }
                 case ("advanced"):
-                    if (!styleSelect.isEnabled()) {
-                        advancedOptions = !advancedOptions;
-                    } else {
-                        if (layer1Select.isEnabled()) {
-                            advancedOptions = false;
+                    if (layerSpace.isVisible()) {
+                        if (styleSelect.getSelectedItem() == "Custom") {
+                            styleSelect.setSelectedItem("Glitch");
+                            layer1Select.setSelectedIndex(9);
                             layer1Select.setEnabled(false);
+                            layer2Select.setSelectedIndex(6);
                             layer2Select.setEnabled(false);
-                        } else {
-                            advancedOptions = true;
-                            layer1Select.setEnabled(true);
-                            layer2Select.setEnabled(true);
                         }
+                        layerSpace.setVisible(false);
+                        styleSelect.removeItem("Custom");
+                        layerSpace.revalidate();
+                    } else {
+                        layerSpace.setVisible(true);
+                        styleSelect.revalidate();
+                        styleSelect.addItem("Custom");
+                        layerSpace.revalidate();
                     }
                     break;
                 case ("documentation"):
