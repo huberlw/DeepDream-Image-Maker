@@ -97,6 +97,7 @@ public class OpenFileGUI extends JFrame {
         userOptions.add(mainOptions, BorderLayout.CENTER);
 
         // style selection
+        styleSpace = new JPanel();
         styleSpace.setBackground(Color.DARK_GRAY);
         styleSpace.setLayout(new BoxLayout(styleSpace, BoxLayout.Y_AXIS));
 
@@ -112,6 +113,7 @@ public class OpenFileGUI extends JFrame {
         mainOptions.add(styleSpace);
 
         // layer selection
+        layerSpace = new JPanel();
         layerSpace.setBackground(Color.DARK_GRAY);
         layerSpace.setLayout(new BoxLayout(layerSpace, BoxLayout.Y_AXIS));
         JLabel layerLabel = new JLabel("Layers");
