@@ -18,7 +18,6 @@
 
 import tensorflow as tf
 import numpy as np
-import IPython.display as display
 import PIL.Image
 import cv2
 import os
@@ -103,6 +102,7 @@ class TiledGradients(tf.Module):
 
 
 def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octaves=range(-4, 1), octave_scale=1.5):
+    progress = 0
     img = tf.keras.utils.img_to_array(img)
     base_shape = tf.shape(img)
     img = tf.keras.applications.mobilenet_v2.preprocess_input(img)
@@ -120,8 +120,9 @@ def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octav
             img = img + gradients * step_size
             img = tf.clip_by_value(img, -1, 1)
 
-            if step % 10 == 0:
-                display.clear_output(wait=True)
+            progress += 1
+            print(progress)
+            sys.stdout.flush();
 
     result = deprocess(img)
     return result
@@ -135,6 +136,7 @@ concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add
 file_path = sys.argv[1]
 layer_1 = int(sys.argv[2])
 layer_2 = int(sys.argv[3])
+depth = int(sys.argv[4])
 file_name = os.path.splitext(os.path.basename(file_path))[0]
 
 if not os.path.isdir('./output'): os.mkdir('./output')
@@ -163,7 +165,7 @@ shift, img_rolled = random_roll(np.array(original_img), 512)
 
 # dreamify
 get_tiled_gradients = TiledGradients(dream_model)
-img = run_deep_dream_with_octaves(img=original_img, step_size=0.01)
+img = run_deep_dream_with_octaves(img=original_img, step_size=0.01, octaves=range(depth, 1))
 
 # make image original size
 img = tf.image.resize(img, base_shape)

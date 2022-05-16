@@ -1,3 +1,5 @@
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import java.lang.Math;
+
 public class OpenFileGUI extends JFrame {
     private String baseImage;
     private static String openImage;
@@ -20,10 +24,13 @@ public class OpenFileGUI extends JFrame {
     private JComboBox<String> styleSelect;
     private JComboBox<String> layer1Select;
     private JComboBox<String> layer2Select;
+    public static String depth = "-4";
+    public static JProgressBar dreamProgress;
     private static BufferedImage drawImage;
     private static boolean flag;
     private boolean advancedOptions;
     protected File output;
+
     public static void main(String[] args) { 
         new OpenFileGUI().setupGUI();
     }
@@ -34,7 +41,7 @@ public class OpenFileGUI extends JFrame {
         advancedOptions = false;
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
-        appWindow.setMinimumSize(new Dimension(300, 300));
+        appWindow.setMinimumSize(new Dimension(500, 500));
         appWindow.setSize(500, 500);
         appWindow.setLocationRelativeTo(null); // Centers window
 
@@ -42,25 +49,35 @@ public class OpenFileGUI extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         menuBar.setBorderPainted(false);
         menuBar.setBackground(Color.DARK_GRAY);
+        
+        // file options
         JMenu fileMenu = new JMenu("File");
-        JMenu settingsMenu = new JMenu ("Settings");
-        JMenu Help = new JMenu("Help");
-        fileMenu.setForeground(Color.WHITE);
-        settingsMenu.setForeground(Color.WHITE);
-        Help.setForeground(Color.WHITE);
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
         JMenuItem saveItem = new JMenuItem("Save as...");
-        JCheckBoxMenuItem advancedItem = new JCheckBoxMenuItem("Advanced options");
-        JMenuItem documentation = new JMenuItem("How it Works");
-        settingsMenu.add(advancedItem);
-        Help.add(documentation);
+        fileMenu.setForeground(Color.WHITE);
         fileMenu.add(openItem);
         fileMenu.add(urlItem);
         fileMenu.add(saveItem);
+
+        // advanced settings
+        JMenu settingsMenu = new JMenu ("Settings");
+        JCheckBoxMenuItem advancedItem = new JCheckBoxMenuItem("Advanced options");
+        settingsMenu.setForeground(Color.WHITE);
+        settingsMenu.add(advancedItem);
+
+        // get help
+        JMenu Help = new JMenu("Help");
+        JMenuItem documentation = new JMenuItem("How it Works");
+        Help.setForeground(Color.WHITE);
+        Help.add(documentation);
+        
+        // add to menu
         menuBar.add(fileMenu);
         menuBar.add(settingsMenu);
         menuBar.add(Help);
+
+        // add to app
         appWindow.add(menuBar, BorderLayout.NORTH);
         
         // set up image space
@@ -120,7 +137,6 @@ public class OpenFileGUI extends JFrame {
         mainOptions.add(layerSpace);
 
         // dreamify button
-
         JPanel dreamSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
         dreamSpace.setBackground(Color.DARK_GRAY);
         dreamSpace.setLayout(new BoxLayout(dreamSpace, BoxLayout.Y_AXIS));
@@ -171,39 +187,18 @@ public class OpenFileGUI extends JFrame {
 
         // end program when window closes
         appWindow.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent event){
+            public void windowClosing(WindowEvent event) {
                System.exit(0);
             }        
          }); 
     }
 
-    private void dreamify() {
-        // get layes from selection
-        String layer1 = String.valueOf(Integer.parseInt(layer1Select.getSelectedItem().toString())-1);
-        String layer2 = String.valueOf(Integer.parseInt(layer2Select.getSelectedItem().toString())-1);
-        JOptionPane.showMessageDialog(appWindow, "Dreamifying...");
-        // start python script with file path and layers as arguments
-        ProcessBuilder startProcess = new ProcessBuilder("python3", System.getProperty("user.dir") + "\\main.py",
-                                    openImage, layer1, 
-                                    layer2);
+    private int checkIfInteger(String output) {
         try {
-            Process pythonScript = startProcess.start();
-            // read output from script for image file path
-            BufferedReader debugging = new BufferedReader(new InputStreamReader(pythonScript.getInputStream()));
-            String pythonOutput = null;
-            while((pythonOutput = debugging.readLine()) != null) {
-	    			if (pythonOutput.contains("&&&")) {
-                    String dreamImage = pythonOutput.substring(3, pythonOutput.length());
-                    setImage("./output/" + dreamImage);
-                    output = new File("./output/" + dreamImage);
-                    resetButton.setEnabled(true);
-                    break;
-                }
-            }
-            JOptionPane.showMessageDialog(appWindow, "Dreamify Complete!");
-
-        } catch (IOException noScript) {
-            JOptionPane.showMessageDialog(appWindow, "Cannot load Python script!", "Error 117", JOptionPane.ERROR_MESSAGE);
+            return Integer.parseInt(output);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
         }
     }
     
@@ -216,7 +211,7 @@ public class OpenFileGUI extends JFrame {
 
         if (chooseFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             baseImage = chooseFile.getSelectedFile().toString();
-            if (baseImage == openImage) return;
+            if (baseImage.equals(openImage)) return;
             setImage(baseImage);
         }
     }
@@ -243,10 +238,12 @@ public class OpenFileGUI extends JFrame {
         
         appWindow.addComponentListener(new ComponentAdapter( ) {
             public void componentResized(ComponentEvent ev) {
-                loadImage();
+                if (dreamProgress != null)
+                    OpenFileGUI.imageSpace.revalidate();
+                else
+                    loadImage();
             }
         });
-            
     }
 
     public static void loadImage() {
@@ -254,7 +251,9 @@ public class OpenFileGUI extends JFrame {
         if (flag) {
             try {
                 drawImage = ImageIO.read(new File(OpenFileGUI.openImage));
-            } catch (Exception fileNotFound) {}
+            } catch (Exception fileNotFound) {
+                JOptionPane.showMessageDialog(null, "File not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
         // get image resolution based on window size
@@ -282,27 +281,24 @@ public class OpenFileGUI extends JFrame {
     private static void openDocumentation() {
         try {
             Desktop.getDesktop().browse(new URI("https://ai.googleblog.com/2015/06/inceptionism-going-deeper-into-neural.html"));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
     private static void saveImage(File output) {
-           JFileChooser fileChooser = new JFileChooser();
-           int returnval = fileChooser.showSaveDialog(imageSpace);
-           if (returnval == JFileChooser.APPROVE_OPTION) {
-               File fileToSave = fileChooser.getSelectedFile();
+       JFileChooser fileChooser = new JFileChooser();
+       int returnVal = fileChooser.showSaveDialog(imageSpace);
+       if (returnVal == JFileChooser.APPROVE_OPTION) {
+           File fileToSave = fileChooser.getSelectedFile();
 
-               try {
-                   BufferedImage img = ImageIO.read(output);
-                   ImageIO.write(img, "png", fileToSave);
-               } catch (IOException e) {
-                   throw new RuntimeException(e);
-               }
+           try {
+               BufferedImage img = ImageIO.read(output);
+               ImageIO.write(img, "png", fileToSave);
+           } catch (IOException e) {
+               throw new RuntimeException(e);
            }
+       }
     }
-
 
     private class ButtonClickListener implements ActionListener{
         public void actionPerformed(ActionEvent e) {
@@ -338,17 +334,11 @@ public class OpenFileGUI extends JFrame {
                     if (output != null) {
                         saveImage(output);
                     }else {
-
                         break;
-}
+                    }
                 case ("advanced"):
                     if (!styleSelect.isEnabled()) {
-                        if (advancedOptions) {
-                            advancedOptions = false;
-                        } else {
-                            advancedOptions = true;
-
-                        }
+                        advancedOptions = !advancedOptions;
                     } else {
                         if (layer1Select.isEnabled()) {
                             advancedOptions = false;
@@ -365,26 +355,35 @@ public class OpenFileGUI extends JFrame {
                     openDocumentation();
                     break;
                 case ("dream"):
-                    dreamify();
+                    DreamWorker dw = new DreamWorker();
+                    dw.addPropertyChangeListener(new PropertyChangeListener() {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent evt) {
+                            if ("progress".equals(evt.getPropertyName())) {
+                                // do progress bar stuff
+                            }
+                        }
+                    });
+                    dw.execute();
                     break;
                 case ("reset"):
 
                     setImage(baseImage);
                     break;
                 case ("style"):
-                    if (((String)styleSelect.getSelectedItem()).equals("Glitch")) {
+                    if ((styleSelect.getSelectedItem()).equals("Glitch")) {
                         layer1Select.setSelectedIndex(9);
                         layer1Select.setEnabled(false);
                         layer2Select.setSelectedIndex(6);
                         layer2Select.setEnabled(false);
                     }
-                    else if (((String)styleSelect.getSelectedItem()).equals("Disease")) {
+                    else if ((styleSelect.getSelectedItem()).equals("Disease")) {
                         layer1Select.setSelectedIndex(8);
                         layer1Select.setEnabled(false);
                         layer2Select.setSelectedIndex(9);
                         layer2Select.setEnabled(false);
                     }
-                    else if (((String)styleSelect.getSelectedItem()).equals("Electric")) {
+                    else if ((styleSelect.getSelectedItem()).equals("Electric")) {
                         layer1Select.setSelectedIndex(8);
                         layer1Select.setEnabled(false);
                         layer2Select.setSelectedIndex(1);
@@ -395,17 +394,71 @@ public class OpenFileGUI extends JFrame {
                         layer2Select.setEnabled(true);
                     }
                     break;
+                }
+            }
+        }
+
+    class DreamWorker extends SwingWorker<Void, Void> {
+        @Override
+        protected Void doInBackground() throws Exception {
+            // create progress bar
+            DreamProgress dp = new DreamProgress();
+            dp.execute();
+
+            // run dream
+            // get layers from selection
+            String layer1 = String.valueOf(Integer.parseInt(layer1Select.getSelectedItem().toString())-1);
+            String layer2 = String.valueOf(Integer.parseInt(layer2Select.getSelectedItem().toString())-1);
+
+            // start python script with file path and layers as arguments
+            ProcessBuilder startProcess;
+
+            String os = System.getProperty("os.name");
+            if (os.contains("Windows"))
+                startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", openImage, layer1, layer2, depth);
+            else
+                startProcess = new ProcessBuilder("python3", System.getProperty("user.dir") + "\\main.py", openImage, layer1, layer2, depth);
+
+            try {
+                Process pythonScript = startProcess.start();
+                // read output from script for image file path
+                BufferedReader debugging = new BufferedReader(new InputStreamReader(pythonScript.getInputStream()));
+
+                String pythonOutput = null;
+                while((pythonOutput = debugging.readLine()) != null) {
+                    if (pythonOutput.contains("&&&")) {
+                        String dreamImage = pythonOutput.substring(3);
+                        setImage("./output/" + dreamImage);
+                        output = new File("./output/" + dreamImage);
+                        resetButton.setEnabled(true);
+                        break;
+                    }
+                    else {
+                        int output;
+                        if ((output = checkIfInteger(pythonOutput)) > 0) {
+                            dreamProgress.setValue(output);
+                        }
+                    }
+                }
+
+            } catch (IOException noScript) {
+                JOptionPane.showMessageDialog(appWindow, "Python script failed!", "Error 117", JOptionPane.ERROR_MESSAGE);
             }
 
-            }
+            dreamProgress = null;
 
-        }		
-     }
+            return null;
+        }
 
+        @Override
+        protected void done() {
+            super.done();
+        }
+    }
+}
 
-
-class ImageLoader extends SwingWorker<Void, Void>{
-
+class ImageLoader extends SwingWorker<Void, Void> {
+    @Override
     protected Void doInBackground() throws Exception {
         // add loading image text
         OpenFileGUI.imageSpace.removeAll();
@@ -416,9 +469,32 @@ class ImageLoader extends SwingWorker<Void, Void>{
         return null;
     }
 
-    // only start loading image after loading text is displayed
+    @Override // only start loading image after loading text is displayed
     protected void done() {
         OpenFileGUI.loadImage();
     }
+}
 
+class DreamProgress extends SwingWorker<Void, Void> {
+    @Override
+    protected Void doInBackground() throws Exception {
+        int max = Math.abs((Integer.parseInt(OpenFileGUI.depth) - 1) * 100);
+
+        OpenFileGUI.dreamProgress = new JProgressBar(0, max);
+        OpenFileGUI.dreamProgress.setValue(0);
+        OpenFileGUI.dreamProgress.setStringPainted(true);
+        OpenFileGUI.dreamProgress.setString("Dreamifying image...");
+        OpenFileGUI.dreamProgress.setFont(new Font("Sans", Font.BOLD, 20));
+
+        OpenFileGUI.imageSpace.removeAll();
+        OpenFileGUI.imageSpace.add(OpenFileGUI.dreamProgress);
+        OpenFileGUI.imageSpace.revalidate();
+
+        return null;
+    }
+
+    @Override
+    protected void done() {
+        super.done();
+    }
 }
