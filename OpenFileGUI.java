@@ -104,7 +104,7 @@ public class OpenFileGUI extends JFrame {
         JLabel styleLabel = new JLabel("Style");
         styleLabel.setForeground(Color.WHITE);
         styleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-        styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric", "Custom"});
+        styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric"});
         styleSelect.setEnabled(false);
         
         styleSpace.add(styleLabel);
@@ -139,6 +139,7 @@ public class OpenFileGUI extends JFrame {
         layerSelect.add(layer2Select);
         layerSpace.add(layerSelect, BorderLayout.SOUTH);
         mainOptions.add(layerSpace);
+        layerSpace.setVisible(false);
 
         // dreamify button
         JPanel dreamSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
