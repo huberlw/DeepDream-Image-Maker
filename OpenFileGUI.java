@@ -15,6 +15,8 @@ public class OpenFileGUI extends JFrame {
     private static String openImage;
     private JFrame appWindow;
     public static JPanel imageSpace;
+    private JPanel layerSpace;
+    private JPanel styleSpace;
     private JButton dreamButton;
     private JButton resetButton;
     private JComboBox<String> styleSelect;
@@ -77,14 +79,14 @@ public class OpenFileGUI extends JFrame {
         userOptions.add(mainOptions, BorderLayout.CENTER);
 
         // style selection
-        JPanel styleSpace = new JPanel();
+        styleSpace = new JPanel();
         styleSpace.setBackground(Color.DARK_GRAY);
         styleSpace.setLayout(new BoxLayout(styleSpace, BoxLayout.Y_AXIS));
 
         JLabel styleLabel = new JLabel("Style");
         styleLabel.setForeground(Color.WHITE);
         styleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-        styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric", "Custom"});
+        styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric"});
         styleSelect.setEnabled(false);
         
         styleSpace.add(styleLabel);
@@ -93,7 +95,7 @@ public class OpenFileGUI extends JFrame {
         mainOptions.add(styleSpace);
 
         // layer selection
-        JPanel layerSpace = new JPanel();
+        layerSpace = new JPanel();
         layerSpace.setBackground(Color.DARK_GRAY);
         layerSpace.setLayout(new BoxLayout(layerSpace, BoxLayout.Y_AXIS));
         JLabel layerLabel = new JLabel("Layers");
@@ -118,6 +120,7 @@ public class OpenFileGUI extends JFrame {
         layerSelect.add(layer2Select);
         layerSpace.add(layerSelect, BorderLayout.SOUTH);
         mainOptions.add(layerSpace);
+        layerSpace.setVisible(false);
 
         // dreamify button
 
@@ -183,7 +186,7 @@ public class OpenFileGUI extends JFrame {
         String layer2 = String.valueOf(Integer.parseInt(layer2Select.getSelectedItem().toString())-1);
         JOptionPane.showMessageDialog(appWindow, "Dreamifying...");
         // start python script with file path and layers as arguments
-        ProcessBuilder startProcess = new ProcessBuilder("python3", System.getProperty("user.dir") + "\\main.py",
+        ProcessBuilder startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py",
                                     openImage, layer1, 
                                     layer2);
         try {
@@ -342,23 +345,22 @@ public class OpenFileGUI extends JFrame {
                         break;
 }
                 case ("advanced"):
-                    if (!styleSelect.isEnabled()) {
-                        if (advancedOptions) {
-                            advancedOptions = false;
-                        } else {
-                            advancedOptions = true;
-
-                        }
-                    } else {
-                        if (layer1Select.isEnabled()) {
-                            advancedOptions = false;
+                    if (layerSpace.isVisible()) {
+                        if (styleSelect.getSelectedItem() == "Custom") {
+                            styleSelect.setSelectedItem("Glitch");
+                            layer1Select.setSelectedIndex(9);
                             layer1Select.setEnabled(false);
+                            layer2Select.setSelectedIndex(6);
                             layer2Select.setEnabled(false);
-                        } else {
-                            advancedOptions = true;
-                            layer1Select.setEnabled(true);
-                            layer2Select.setEnabled(true);
                         }
+                        layerSpace.setVisible(false);
+                        styleSelect.removeItem("Custom");
+                        layerSpace.revalidate();
+                    } else {
+                        layerSpace.setVisible(true);
+                        styleSelect.revalidate();
+                        styleSelect.addItem("Custom");
+                        layerSpace.revalidate();
                     }
                     break;
                 case ("documentation"):
