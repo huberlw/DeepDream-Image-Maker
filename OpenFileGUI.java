@@ -283,6 +283,7 @@ public class OpenFileGUI extends JFrame {
         
         flag = false;
     }
+
     private static void openDocumentation() {
         try {
             Desktop.getDesktop().browse(new URI("https://ai.googleblog.com/2015/06/inceptionism-going-deeper-into-neural.html"));
@@ -290,6 +291,7 @@ public class OpenFileGUI extends JFrame {
             throw new RuntimeException(e);
         }
     }
+
     private static void saveImage(File output) {
        JFileChooser fileChooser = new JFileChooser();
        int returnVal = fileChooser.showSaveDialog(imageSpace);
