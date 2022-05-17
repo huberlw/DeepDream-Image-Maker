@@ -18,7 +18,8 @@
 
 import tensorflow as tf
 import numpy as np
-import PIL.Image
+import PIL.Image as Image
+from io import BytesIO
 import cv2
 import os
 import sys
@@ -143,13 +144,12 @@ if not os.path.isdir('./output'): os.mkdir('./output')
 output_directory = './output'
 
 # image to dreamify
-original_img = PIL.Image.open(file_path)
-if (original_img.format != 'JPEG'):
-    with BytesIO() as b:
-        original_img.save(b, format='JPEG')
-        b.seek(0)
-        b.getvalue()
-        original_img = PIL.Image.open(file_path)
+original_img = Image.open(file_path)
+if original_img.format != 'JPEG':
+    original_img = original_img.convert('RGB')
+    buffer = BytesIO()
+    original_img.save(buffer, format='JPEG')
+    original_img = Image.open(buffer)
 
 # layers whose activations to maximize
 names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
