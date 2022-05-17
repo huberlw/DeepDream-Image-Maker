@@ -206,17 +206,28 @@ public class OpenFileGUI extends JFrame {
             return -1;
         }
     }
-    
+
+    private void checkFileLength(String fileName, double sizeThreshhold) {
+        File file = new File(fileName);
+        double bytes = file.length();
+        double kilobytes = (bytes / 1024);
+        //if file exceeds this size, warning will be issued
+        if (kilobytes > sizeThreshhold) JOptionPane.showMessageDialog(appWindow, "This is a large file, dreamification may take a while");
+        return;
+    }
+
     private void openFile() {
         // create window to select a "jpg" file
         JFileChooser chooseFile = new JFileChooser(System.getProperty("user.dir"));
         chooseFile.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("JPG file", "jpg");
+        FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("JPG file", "jpg","jfif","png");
         chooseFile.addChoosableFileFilter(extensionFilter);
 
         if (chooseFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             baseImage = chooseFile.getSelectedFile().toString();
             if (baseImage.equals(openImage)) return;
+            //warn user if file is large
+            checkFileLength(baseImage,120.0);
             setImage(baseImage);
         }
     }
@@ -331,6 +342,8 @@ public class OpenFileGUI extends JFrame {
                                 Files.copy(inputStream, Paths.get("./input/" + fileName));
                             }
                             baseImage = "./input/" + fileName;
+                            //warn user if file is large
+                            checkFileLength(baseImage,120.0);
                             setImage(baseImage);
                         }
                     } catch (IOException notValidImage) {
