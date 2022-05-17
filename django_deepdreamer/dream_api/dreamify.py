@@ -134,13 +134,12 @@ def sweet_dreams(image):
     # concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add', 'block_8_add', 'block_9_add', 'block_11_add', 'block_12_add', 'block_14_add', 'block_15_add']
 
     # image to dreamify 
-    original_img = PIL.Image.open(image)
-    if (original_img.format != 'JPEG'): 
-        with BytesIO() as b:
-            original_img.save(b, format='JPEG')
-            b.seek(0)
-            b.getvalue()
-            original_img = PIL.Image.open(image)
+    original_img = Image.open(image)
+    if original_img.format != 'JPEG':
+        original_img = original_img.convert('RGB')
+        buffer = BytesIO()
+        original_img.save(buffer, format='JPEG')
+        original_img = Image.open(buffer)
 
     # layers whose activations to maximize
     names = ['block_2_add', 'block_4_add']
