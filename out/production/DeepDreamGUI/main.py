@@ -149,7 +149,7 @@ if (original_img.format != 'JPEG'):
         original_img.save(b, format='JPEG')
         b.seek(0)
         b.getvalue()
-        original_img = PIL.Image.open(image)
+        original_img = PIL.Image.open(file_path)
 
 # layers whose activations to maximize
 names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]

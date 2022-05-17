@@ -215,11 +215,11 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void openFile() {
-        // create window to select a "jpg" file
+        // create window to select a jpg or png file
         JFileChooser chooseFile = new JFileChooser(System.getProperty("user.dir"));
         chooseFile.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter extensionFilter = new FileNameExtensionFilter("JPG file", "jpg","jfif","png");
-        chooseFile.addChoosableFileFilter(extensionFilter);
+        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg","jfif","pjpeg", "pjp"));
+        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("PNG file", "png"));
 
         if (chooseFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             baseImage = chooseFile.getSelectedFile().toString();
@@ -305,8 +305,8 @@ public class OpenFileGUI extends JFrame {
        JFileChooser fileChooser = new JFileChooser();
        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
        fileChooser.setAcceptAllFileFilterUsed(false);
-       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG", "png"));
-       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG", "jpg"));
+       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG file", "png"));
+       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg"));
 
        if (fileChooser.showSaveDialog(imageSpace) == JFileChooser.APPROVE_OPTION) {
            File fileToSave = fileChooser.getSelectedFile();
@@ -388,13 +388,13 @@ public class OpenFileGUI extends JFrame {
                         }
                         layerSpace.setVisible(false);
                         styleSelect.removeItem("Custom");
-                        layerSpace.revalidate();
                     } else {
                         layerSpace.setVisible(true);
                         styleSelect.revalidate();
                         styleSelect.addItem("Custom");
-                        layerSpace.revalidate();
                     }
+
+                    layerSpace.revalidate();
                     break;
                 case ("documentation"):
                     openDocumentation();
