@@ -11,9 +11,7 @@ import java.awt.image.BufferedImage;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import java.lang.Math;
-import java.util.Objects;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
@@ -294,17 +292,40 @@ public class OpenFileGUI extends JFrame {
 
     private static void saveImage(File output) {
        JFileChooser fileChooser = new JFileChooser();
-       int returnVal = fileChooser.showSaveDialog(imageSpace);
-       if (returnVal == JFileChooser.APPROVE_OPTION) {
-           File fileToSave = fileChooser.getSelectedFile();
+       fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+       fileChooser.setAcceptAllFileFilterUsed(false);
+       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG", "png"));
+       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG", "jpg"));
 
-           try {
-               BufferedImage img = ImageIO.read(output);
-               ImageIO.write(img, "png", fileToSave);
-           } catch (IOException e) {
-               throw new RuntimeException(e);
+       if (fileChooser.showSaveDialog(imageSpace) == JFileChooser.APPROVE_OPTION) {
+           File fileToSave = fileChooser.getSelectedFile();
+           String name = fileToSave.toString();
+
+           if (!name.endsWith("png") && fileChooser.getFileFilter().getDescription().equals("PNG")) {
+               name += ".png";
+               save("png", name, output);
+           }
+           else if (!name.endsWith("jpg") && fileChooser.getFileFilter().getDescription().equals("JPG")) {
+               name += ".jpg";
+               save("jpg", name, output);
+           }
+           else if (fileChooser.getFileFilter().getDescription().equals("JPG")){
+               save("jpg", name, output);
+           }
+           else {
+               save("png", name, output);
            }
        }
+    }
+
+    private static void save(String type, String name, File output)
+    {
+        try {
+            BufferedImage img = ImageIO.read(output);
+            ImageIO.write(img, type, new File(name));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private class ButtonClickListener implements ActionListener{
