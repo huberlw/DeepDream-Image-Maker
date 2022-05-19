@@ -18,9 +18,7 @@ public class OpenFileGUI extends JFrame {
     private static String openImage;
     private JFrame appWindow;
     public static JPanel imageSpace;
-    private JPanel layerSpace;
-    private JPanel styleSpace;
-    private JButton dreamButton;
+    public static JButton dreamButton;
     private JButton resetButton;
     private JComboBox<String> styleSelect;
     private JComboBox<String> layer1Select;
@@ -29,140 +27,126 @@ public class OpenFileGUI extends JFrame {
     public static JProgressBar dreamProgress;
     private static BufferedImage drawImage;
     private static boolean flag;
-    private boolean advancedOptions;
     protected File output;
+    private JLabel layerLabel;
+    private JLabel styleLabel;
+    private JCheckBoxMenuItem advancedItem;
 
     public static void main(String[] args) { 
         new OpenFileGUI().setupGUI();
     }
 
     private void setupGUI() {
-		// set up app window
-        output = null;
-        advancedOptions = false;
+		
+        // create app window
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
-        appWindow.setMinimumSize(new Dimension(500, 500));
-        appWindow.setSize(500, 500);
-        appWindow.setLocationRelativeTo(null); // Centers window
+        appWindow.setMinimumSize(new Dimension(700, 700));
+        appWindow.setLocationRelativeTo(null); // centers window
 
-        // set up menu bar
+        // create menu bar
         JMenuBar menuBar = new JMenuBar();
-        menuBar.setBorderPainted(false);
-        menuBar.setBackground(Color.DARK_GRAY);
+        menuBar.setBorderPainted(false); // disables white outline
+        menuBar.setBackground(Color.decode("#152232"));
         
         // file options
         JMenu fileMenu = new JMenu("File");
+        fileMenu.setFont(new Font("Sans", Font.BOLD, 12));
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
         JMenuItem saveItem = new JMenuItem("Save as...");
-        fileMenu.setForeground(Color.WHITE);
+        fileMenu.setForeground(Color.decode("#d3d5f3"));
         fileMenu.add(openItem);
         fileMenu.add(urlItem);
         fileMenu.add(saveItem);
 
         // advanced settings
         JMenu settingsMenu = new JMenu ("Settings");
-        JCheckBoxMenuItem advancedItem = new JCheckBoxMenuItem("Advanced options");
-        settingsMenu.setForeground(Color.WHITE);
+        settingsMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        advancedItem = new JCheckBoxMenuItem("Advanced options");
+        settingsMenu.setForeground(Color.decode("#d3d5f3"));
         settingsMenu.add(advancedItem);
 
         // get help
-        JMenu Help = new JMenu("Help");
-        JMenuItem documentation = new JMenuItem("How it Works");
-        Help.setForeground(Color.WHITE);
-        Help.add(documentation);
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        JMenuItem infoItem = new JMenuItem("How it Works");
+        helpMenu.setForeground(Color.decode("#d3d5f3"));
+        helpMenu.add(infoItem);
         
-        // add to menu
+        // add to menu bar
         menuBar.add(fileMenu);
         menuBar.add(settingsMenu);
-        menuBar.add(Help);
+        menuBar.add(helpMenu);
+        menuBar.add(Box.createVerticalStrut(30));
 
-        // add to app
+        // add to app window
         appWindow.add(menuBar, BorderLayout.NORTH);
         
-        // set up image space
+        // create image space
         imageSpace = new JPanel(new BorderLayout());
-        imageSpace.setBackground(Color.BLACK);
+        imageSpace.setBackground(Color.decode("#0b1622"));
         appWindow.add(imageSpace, BorderLayout.CENTER);
-        // ---USER OPTIONS---
-
-        // set up options section
-        JPanel userOptions = new JPanel(new BorderLayout());
+        
+        // --- USER OPTIONS ---
+        // create options
+        JPanel userOptions = new JPanel();
+        userOptions.setBackground(Color.decode("#151f2e"));
+        userOptions.add(Box.createVerticalStrut(60));
         appWindow.add(userOptions, BorderLayout.SOUTH);
-        JPanel mainOptions = new JPanel();
-        mainOptions.setBackground(Color.DARK_GRAY);
-        userOptions.add(mainOptions, BorderLayout.CENTER);
+
 
         // style selection
-        styleSpace = new JPanel();
-        styleSpace.setBackground(Color.DARK_GRAY);
-        styleSpace.setLayout(new BoxLayout(styleSpace, BoxLayout.Y_AXIS));
-
-        JLabel styleLabel = new JLabel("Style");
-        styleLabel.setForeground(Color.WHITE);
-        styleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        styleLabel = new JLabel("Style");
+        styleLabel.setFont(new Font("Sans", Font.PLAIN, 14));
+        styleLabel.setForeground(Color.decode("#d3d5f3"));
         styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric"});
-        styleSelect.setEnabled(false);
-        
-        styleSpace.add(styleLabel);
-        styleSpace.add(Box.createVerticalStrut(2));
-        styleSpace.add(styleSelect);
-        mainOptions.add(styleSpace);
+        styleSelect.setPreferredSize(new Dimension(90, 30));
+        styleSelect.setFont(new Font("Sans", Font.BOLD, 14));
+        userOptions.add(styleLabel);
+        userOptions.add(styleSelect);
 
         // layer selection
-        layerSpace = new JPanel();
-        layerSpace.setBackground(Color.DARK_GRAY);
-        layerSpace.setLayout(new BoxLayout(layerSpace, BoxLayout.Y_AXIS));
-        JLabel layerLabel = new JLabel("Layers");
-        layerLabel.setForeground(Color.WHITE);
-        layerLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-        layerSpace.add(layerLabel);
-        layerSpace.add(Box.createVerticalStrut(2));
-        layerSpace.setVisible(false);
+        layerLabel = new JLabel("Layers");
+        layerLabel.setFont(new Font("Sans", Font.PLAIN, 14));
+        layerLabel.setForeground(Color.decode("#d3d5f3"));
 
-        JPanel layerSelect = new JPanel();
-        layerSelect.setLayout(new BoxLayout(layerSelect, BoxLayout.X_AXIS));
-
-        advancedOptions = false;
         String[] layerOptions = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         layer1Select = new JComboBox<String>(layerOptions);
+        layer1Select.setPreferredSize(new Dimension(45, 30));
+        layer1Select.setFont(new Font("Sans", Font.BOLD, 14));
         layer1Select.setSelectedIndex(9);
-        layer1Select.setEnabled(false);
         layer2Select = new JComboBox<String>(layerOptions);
+        layer2Select.setPreferredSize(new Dimension(45, 30));
+        layer2Select.setFont(new Font("Sans", Font.BOLD, 14));
         layer2Select.setSelectedIndex(6);
-        layer2Select.setEnabled(false);
+        layer2Select.add(Box.createHorizontalStrut(4));
         
-        layerSelect.add(layer1Select);
-        layerSelect.add(layer2Select);
-        layerSpace.add(layerSelect, BorderLayout.SOUTH);
-        mainOptions.add(layerSpace);
-        layerSpace.setVisible(false);
+        userOptions.add(layerLabel);
+        userOptions.add(layer1Select);
+        userOptions.add(layer2Select);
+        layerLabel.setVisible(false);
+        layer1Select.setVisible(false);
+        layer2Select.setVisible(false);
 
         // dreamify button
-        JPanel dreamSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
-        dreamSpace.setBackground(Color.DARK_GRAY);
-        dreamSpace.setLayout(new BoxLayout(dreamSpace, BoxLayout.Y_AXIS));
-        dreamSpace.add(Box.createVerticalStrut(1));
-        dreamSpace.add(new JLabel(" "), BorderLayout.NORTH);
+        userOptions.add(Box.createHorizontalStrut(4));
         dreamButton = new JButton("Dreamify");
+        dreamButton.setPreferredSize(new Dimension(100, 30));
+        dreamButton.setFont(new Font("Sans", Font.BOLD, 14));
         dreamButton.setEnabled(false);
-        dreamSpace.add(dreamButton, BorderLayout.SOUTH);
-        mainOptions.add(dreamSpace);
+        userOptions.add(dreamButton);
+        dreamButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         // reset button
-        JPanel resetSpace = new JPanel(); // another panel makes the spacing consistent with the other buttons
-        resetSpace.setBackground(Color.DARK_GRAY);
-        resetSpace.setLayout(new BoxLayout(resetSpace, BoxLayout.Y_AXIS));
-        resetSpace.add(Box.createVerticalStrut(1));
-        resetSpace.add(new JLabel(" "), BorderLayout.NORTH);
+        userOptions.add(Box.createHorizontalStrut(4));
         resetButton = new JButton("Reset");
+        resetButton.setPreferredSize(new Dimension(100, 30));
+        resetButton.setFont(new Font("Sans", Font.BOLD, 14));
         resetButton.setEnabled(false);
-        resetSpace.add(resetButton, BorderLayout.SOUTH);
-        mainOptions.add(resetSpace);
-
-        // ---END USER OPTIONS---
-
+        userOptions.add(resetButton);
+        dreamButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // --- END USER OPTIONS ---
 
         appWindow.setVisible(true);
         
@@ -175,17 +159,17 @@ public class OpenFileGUI extends JFrame {
         saveItem.addActionListener(new ButtonClickListener());
         advancedItem.setActionCommand("advanced");
         advancedItem.addActionListener(new ButtonClickListener());
-        documentation.setActionCommand("documentation");
-        documentation.addActionListener(new ButtonClickListener());
+        infoItem.setActionCommand("infoItem");
+        infoItem.addActionListener(new ButtonClickListener());
         dreamButton.setActionCommand("dream");
         dreamButton.addActionListener(new ButtonClickListener());
         resetButton.setActionCommand("reset");
         resetButton.addActionListener(new ButtonClickListener());
         styleSelect.setActionCommand("style");
         styleSelect.addActionListener(new ButtonClickListener());
-        layer1Select.setActionCommand("layer1");
+        layer1Select.setActionCommand("layer");
         layer1Select.addActionListener(new ButtonClickListener());
-        layer2Select.setActionCommand("layer1");
+        layer2Select.setActionCommand("layer");
         layer2Select.addActionListener(new ButtonClickListener());
 
         // end program when window closes
@@ -245,10 +229,8 @@ public class OpenFileGUI extends JFrame {
         // buttons should be usable now that image exists
         dreamButton.setEnabled(true);
         styleSelect.setEnabled(true);
-        if (advancedOptions) {
-            layer1Select.setEnabled(true);
-            layer2Select.setEnabled(true);
-        }
+        layer1Select.setEnabled(true);
+        layer2Select.setEnabled(true);
         
         appWindow.addComponentListener(new ComponentAdapter( ) {
             public void componentResized(ComponentEvent ev) {
@@ -293,7 +275,7 @@ public class OpenFileGUI extends JFrame {
         flag = false;
     }
 
-    private static void openDocumentation() {
+    private static void openinfoItem() {
         try {
             Desktop.getDesktop().browse(new URI("https://ai.googleblog.com/2015/06/inceptionism-going-deeper-into-neural.html"));
         } catch (URISyntaxException | IOException e) {
@@ -378,26 +360,25 @@ public class OpenFileGUI extends JFrame {
                         break;
                     }
                 case ("advanced"):
-                    if (layerSpace.isVisible()) {
+                    if (advancedItem.isSelected()) {
+                        layerLabel.setVisible(true);
+                        layer1Select.setVisible(true);
+                        layer2Select.setVisible(true);
+                        styleSelect.addItem("Custom");
+                    } else {
                         if (styleSelect.getSelectedItem() == "Custom") {
                             styleSelect.setSelectedItem("Glitch");
                             layer1Select.setSelectedIndex(9);
-                            layer1Select.setEnabled(false);
                             layer2Select.setSelectedIndex(6);
-                            layer2Select.setEnabled(false);
                         }
-                        layerSpace.setVisible(false);
+                        layerLabel.setVisible(false);
+                        layer1Select.setVisible(false);
+                        layer2Select.setVisible(false);
                         styleSelect.removeItem("Custom");
-                    } else {
-                        layerSpace.setVisible(true);
-                        styleSelect.revalidate();
-                        styleSelect.addItem("Custom");
                     }
-
-                    layerSpace.revalidate();
                     break;
-                case ("documentation"):
-                    openDocumentation();
+                case ("infoItem"):
+                    openinfoItem();
                     break;
                 case ("dream"):
                     DreamWorker dw = new DreamWorker();
@@ -418,26 +399,33 @@ public class OpenFileGUI extends JFrame {
                 case ("style"):
                     if ((styleSelect.getSelectedItem()).equals("Glitch")) {
                         layer1Select.setSelectedIndex(9);
-                        layer1Select.setEnabled(false);
                         layer2Select.setSelectedIndex(6);
-                        layer2Select.setEnabled(false);
                     }
                     else if ((styleSelect.getSelectedItem()).equals("Disease")) {
                         layer1Select.setSelectedIndex(8);
-                        layer1Select.setEnabled(false);
                         layer2Select.setSelectedIndex(9);
-                        layer2Select.setEnabled(false);
                     }
                     else if ((styleSelect.getSelectedItem()).equals("Electric")) {
                         layer1Select.setSelectedIndex(8);
-                        layer1Select.setEnabled(false);
                         layer2Select.setSelectedIndex(1);
-                        layer2Select.setEnabled(false);
                     }
-                    else {
-                        layer1Select.setEnabled(true);
-                        layer2Select.setEnabled(true);
+                    break;
+                case ("layer"):
+                    if (layer1Select.getSelectedIndex() == 9) {
+                        if (layer2Select.getSelectedIndex() == 6) {
+                            styleSelect.setSelectedItem("Glitch");
+                            break;
+                        }
+                    } else if (layer1Select.getSelectedIndex() == 8) {
+                        if (layer2Select.getSelectedIndex() == 9) {
+                            styleSelect.setSelectedItem("Disease");
+                            break;
+                        } else if (layer2Select.getSelectedIndex() == 1) {
+                            styleSelect.setSelectedItem("Disease");
+                            break;
+                        }
                     }
+                    styleSelect.setSelectedItem("Custom");
                     break;
                 }
             }
@@ -446,6 +434,9 @@ public class OpenFileGUI extends JFrame {
     class DreamWorker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() throws Exception {
+            
+            OpenFileGUI.dreamButton.setEnabled(false);
+            
             // create progress bar
             DreamProgress dp = new DreamProgress();
             dp.execute();
@@ -474,6 +465,7 @@ public class OpenFileGUI extends JFrame {
                     if (pythonOutput.contains("&&&")) {
                         String dreamImage = pythonOutput.substring(3);
                         setImage("./output/" + dreamImage);
+                        OpenFileGUI.dreamButton.setEnabled(true);
                         output = new File("./output/" + dreamImage);
                         resetButton.setEnabled(true);
                         break;
@@ -508,7 +500,8 @@ class ImageLoader extends SwingWorker<Void, Void> {
         // add loading image text
         OpenFileGUI.imageSpace.removeAll();
         JLabel imageLoading = new JLabel("Loading image...", SwingConstants.CENTER);
-        imageLoading.setFont(new Font("Sans", Font.BOLD, 16));
+        imageLoading.setFont(new Font("Sans", Font.BOLD, 20));
+        imageLoading.setForeground(Color.decode("#d3d5f3"));
         OpenFileGUI.imageSpace.add(imageLoading);
         OpenFileGUI.imageSpace.revalidate();
         return null;
@@ -523,13 +516,18 @@ class ImageLoader extends SwingWorker<Void, Void> {
 class DreamProgress extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws Exception {
+        
         int max = Math.abs((Integer.parseInt(OpenFileGUI.depth) - 1) * 100);
-
+        
         OpenFileGUI.dreamProgress = new JProgressBar(0, max);
         OpenFileGUI.dreamProgress.setValue(0);
         OpenFileGUI.dreamProgress.setStringPainted(true);
         OpenFileGUI.dreamProgress.setString("Dreamifying image...");
         OpenFileGUI.dreamProgress.setFont(new Font("Sans", Font.BOLD, 20));
+
+        OpenFileGUI.dreamProgress.setBackground(Color.decode("#0b1622"));
+        OpenFileGUI.dreamProgress.setForeground(Color.decode("#3db4f2"));
+        OpenFileGUI.dreamProgress.setBorderPainted(false);
 
         OpenFileGUI.imageSpace.removeAll();
         OpenFileGUI.imageSpace.add(OpenFileGUI.dreamProgress);
