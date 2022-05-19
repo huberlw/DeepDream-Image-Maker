@@ -73,6 +73,9 @@ public class OpenFileGUI extends JFrame {
         JMenuItem infoItem = new JMenuItem("How it Works");
         helpMenu.setForeground(Color.decode("#d3d5f3"));
         helpMenu.add(infoItem);
+
+        JMenuItem layerItem = new JMenuItem("Layers");
+        helpMenu.add(layerItem);
         
         // add to menu bar
         menuBar.add(fileMenu);
@@ -161,6 +164,8 @@ public class OpenFileGUI extends JFrame {
         advancedItem.addActionListener(new ButtonClickListener());
         infoItem.setActionCommand("infoItem");
         infoItem.addActionListener(new ButtonClickListener());
+        layerItem.setActionCommand("layerItem");
+        layerItem.addActionListener(new ButtonClickListener());
         dreamButton.setActionCommand("dream");
         dreamButton.addActionListener(new ButtonClickListener());
         resetButton.setActionCommand("reset");
@@ -202,7 +207,7 @@ public class OpenFileGUI extends JFrame {
         // create window to select a jpg or png file
         JFileChooser chooseFile = new JFileChooser(System.getProperty("user.dir"));
         chooseFile.setAcceptAllFileFilterUsed(false);
-        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg","jfif","pjpeg", "pjp"));
+        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg","jfif","pjpeg", "pjp","png"));
         chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("PNG file", "png"));
 
         if (chooseFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -283,6 +288,10 @@ public class OpenFileGUI extends JFrame {
         }
     }
 
+    private void openLayerItem() {
+        JOptionPane.showMessageDialog(appWindow, "Layers impact what images are classified and enhanced in any given dream. If your dreamification was unsatisfactory, try changing the preset. Or enable advanced settings to have even more control");
+        return;
+    }
     private static void saveImage(File output) {
        JFileChooser fileChooser = new JFileChooser();
        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -379,6 +388,9 @@ public class OpenFileGUI extends JFrame {
                     break;
                 case ("infoItem"):
                     openinfoItem();
+                    break;
+                case ("layerItem"):    
+                    openLayerItem();
                     break;
                 case ("dream"):
                     DreamWorker dw = new DreamWorker();
