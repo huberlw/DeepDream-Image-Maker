@@ -421,7 +421,7 @@ public class OpenFileGUI extends JFrame {
                             styleSelect.setSelectedItem("Disease");
                             break;
                         } else if (layer2Select.getSelectedIndex() == 1) {
-                            styleSelect.setSelectedItem("Disease");
+                            styleSelect.setSelectedItem("Electric");
                             break;
                         }
                     }
