@@ -298,6 +298,11 @@ public class OpenFileGUI extends JFrame {
         for (int i = 0; i < stylePresets.get(dreamModel).size(); i++)
             presets.removeElement(stylePresets.get(dreamModel).get(i));
         
+        if (advancedItem.isSelected()) {
+            styleSelect.removeItem("Custom");
+            styleSelect.addItem("Custom");
+        }
+
         // set dream model
         dreamModel = model;
         
@@ -521,8 +526,7 @@ public class OpenFileGUI extends JFrame {
 
     private class ButtonClickListener implements ActionListener{
         public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            switch(command) {
+            commandParser: switch(e.getActionCommand()) {
                 case ("open"):
                     openFile();
                     break;
@@ -607,8 +611,8 @@ public class OpenFileGUI extends JFrame {
                     for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
                         if (layer1Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[0]
                             && layer2Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[1]) {
-                                styleSelect.setSelectedIndex(i);
-                                break;
+                                styleSelect.setSelectedItem(stylePresets.get(dreamModel).get(i));
+                                break commandParser;
                         }
                     }
                     styleSelect.setSelectedItem("Custom");
