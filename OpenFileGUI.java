@@ -7,8 +7,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.*;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.event.HyperlinkEvent;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -293,10 +291,10 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void changeModel(int model) {
-        // BAD, BUT SYNCHRONIZATION ISSUES OTHERWISE (LOCK LATER)
         // get presets for model
         for (int i = 0; i < stylePresets.get(model).size(); i++)
             presets.addElement(stylePresets.get(model).get(i));
+
         for (int i = 0; i < stylePresets.get(dreamModel).size(); i++)
             presets.removeElement(stylePresets.get(dreamModel).get(i));
         
@@ -481,7 +479,6 @@ public class OpenFileGUI extends JFrame {
                                     "The DeepDreamer program uses several Convulutional Neural Network (CNN) models to create dreamified images.\n" +
                                     "All of these models have their own distinct architecture and produce wildly different flavors of dreams\n" +
                                     "despite all being trained the same.", "Model Info", JOptionPane.INFORMATION_MESSAGE);
-        return;
     }
 
     private static void saveImage(File output) {
