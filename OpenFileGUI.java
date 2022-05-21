@@ -52,6 +52,11 @@ public class OpenFileGUI extends JFrame {
         appWindow.setMinimumSize(new Dimension(700, 700));
         appWindow.setLocationRelativeTo(null); // centers window
 
+        //icon
+        Image icon = Toolkit.getDefaultToolkit().getImage("forg.png");
+        appWindow.setIconImage(icon);
+        
+
         // create menu bar
         JMenuBar menuBar = new JMenuBar();
         menuBar.setBorderPainted(false); // disables white outline
