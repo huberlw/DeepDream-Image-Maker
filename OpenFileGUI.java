@@ -32,6 +32,9 @@ public class OpenFileGUI extends JFrame {
     private JLabel styleLabel;
     private JCheckBoxMenuItem advancedItem;
 
+ 
+
+
     public static void main(String[] args) { 
         new OpenFileGUI().setupGUI();
     }
@@ -43,6 +46,11 @@ public class OpenFileGUI extends JFrame {
         appWindow.setLayout(new BorderLayout());
         appWindow.setMinimumSize(new Dimension(700, 700));
         appWindow.setLocationRelativeTo(null); // centers window
+
+        //icon
+        Image icon = Toolkit.getDefaultToolkit().getImage("forg.png");
+        appWindow.setIconImage(icon);
+        
 
         // create menu bar
         JMenuBar menuBar = new JMenuBar();
