@@ -11,7 +11,10 @@ import java.awt.image.BufferedImage;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
@@ -23,21 +26,26 @@ public class OpenFileGUI extends JFrame {
     private JComboBox<String> styleSelect;
     private JComboBox<String> layer1Select;
     private JComboBox<String> layer2Select;
-    public static String depth = "-4";
+    public JComboBox<String> depthSelect;
     public static JProgressBar dreamProgress;
     private static BufferedImage drawImage;
     private static boolean flag;
     protected File output;
     private JLabel layerLabel;
+    private JLabel depthLabel;
     private JLabel styleLabel;
     private JCheckBoxMenuItem advancedItem;
+    private DefaultComboBoxModel<String> presets;
+    private ArrayList<String> stylePresets;
+    private ArrayList<int[]> stylePresetLayers;
+    private String[] layerOptions = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+    private String[] depthOptions = { "1", "2", "3", "4", "5", "6" };
 
-    public static void main(String[] args) { 
+    public static void main(String[] args) {     
         new OpenFileGUI().setupGUI();
     }
 
     private void setupGUI() {
-		
         // create app window
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
@@ -66,6 +74,8 @@ public class OpenFileGUI extends JFrame {
         advancedItem = new JCheckBoxMenuItem("Advanced options");
         settingsMenu.setForeground(Color.decode("#d3d5f3"));
         settingsMenu.add(advancedItem);
+        JMenuItem customPresetItem = new JMenuItem("Create Custom Preset");
+        settingsMenu.add(customPresetItem);
 
         // get help
         JMenu helpMenu = new JMenu("Help");
@@ -74,8 +84,8 @@ public class OpenFileGUI extends JFrame {
         helpMenu.setForeground(Color.decode("#d3d5f3"));
         helpMenu.add(infoItem);
 
-        JMenuItem layerItem = new JMenuItem("Layers");
-        helpMenu.add(layerItem);
+        JMenuItem layerDepthItem = new JMenuItem("Layers/Depth");
+        helpMenu.add(layerDepthItem);
         
         // add to menu bar
         menuBar.add(fileMenu);
@@ -98,12 +108,18 @@ public class OpenFileGUI extends JFrame {
         userOptions.add(Box.createVerticalStrut(60));
         appWindow.add(userOptions, BorderLayout.SOUTH);
 
-
-        // style selection
+        // style selection ui
         styleLabel = new JLabel("Style");
         styleLabel.setFont(new Font("Sans", Font.PLAIN, 14));
         styleLabel.setForeground(Color.decode("#d3d5f3"));
-        styleSelect = new JComboBox<String>(new String[] {"Glitch", "Disease", "Electric"});
+
+        // instantiate presets
+        presets = new DefaultComboBoxModel<String>(new String[]{"Glitch", "Disease", "Electric"});
+        stylePresets = new ArrayList<>(Arrays.asList("Glitch", "Disease", "Electric"));
+        stylePresetLayers = new ArrayList<>(Arrays.asList(new int[][]{{ 9, 6 }, { 8, 9 }, { 8, 1 }}));
+        
+        // style selection
+        styleSelect = new JComboBox<String>(presets);
         styleSelect.setPreferredSize(new Dimension(90, 30));
         styleSelect.setFont(new Font("Sans", Font.BOLD, 14));
         userOptions.add(styleLabel);
@@ -114,7 +130,6 @@ public class OpenFileGUI extends JFrame {
         layerLabel.setFont(new Font("Sans", Font.PLAIN, 14));
         layerLabel.setForeground(Color.decode("#d3d5f3"));
 
-        String[] layerOptions = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         layer1Select = new JComboBox<String>(layerOptions);
         layer1Select.setPreferredSize(new Dimension(45, 30));
         layer1Select.setFont(new Font("Sans", Font.BOLD, 14));
@@ -124,13 +139,27 @@ public class OpenFileGUI extends JFrame {
         layer2Select.setFont(new Font("Sans", Font.BOLD, 14));
         layer2Select.setSelectedIndex(6);
         layer2Select.add(Box.createHorizontalStrut(4));
+
+        // depth selection
+        depthLabel = new JLabel("Depth");
+        depthLabel.setFont(new Font("Sans", Font.PLAIN, 14));
+        depthLabel.setForeground(Color.decode("#d3d5f3"));
+
+        depthSelect = new JComboBox<String>(depthOptions);
+        depthSelect.setPreferredSize(new Dimension(45, 30));
+        depthSelect.setFont(new Font("Sans", Font.BOLD, 14));
+        depthSelect.setSelectedIndex(3);
         
         userOptions.add(layerLabel);
         userOptions.add(layer1Select);
         userOptions.add(layer2Select);
+        userOptions.add(depthLabel);
+        userOptions.add(depthSelect);
         layerLabel.setVisible(false);
         layer1Select.setVisible(false);
         layer2Select.setVisible(false);
+        depthLabel.setVisible(false);
+        depthSelect.setVisible(false);
 
         // dreamify button
         userOptions.add(Box.createHorizontalStrut(4));
@@ -164,8 +193,8 @@ public class OpenFileGUI extends JFrame {
         advancedItem.addActionListener(new ButtonClickListener());
         infoItem.setActionCommand("infoItem");
         infoItem.addActionListener(new ButtonClickListener());
-        layerItem.setActionCommand("layerItem");
-        layerItem.addActionListener(new ButtonClickListener());
+        layerDepthItem.setActionCommand("layerDepthItem");
+        layerDepthItem.addActionListener(new ButtonClickListener());
         dreamButton.setActionCommand("dream");
         dreamButton.addActionListener(new ButtonClickListener());
         resetButton.setActionCommand("reset");
@@ -176,6 +205,8 @@ public class OpenFileGUI extends JFrame {
         layer1Select.addActionListener(new ButtonClickListener());
         layer2Select.setActionCommand("layer");
         layer2Select.addActionListener(new ButtonClickListener());
+        customPresetItem.setActionCommand("createCustom");
+        customPresetItem.addActionListener(new ButtonClickListener());
 
         // end program when window closes
         appWindow.addWindowListener(new WindowAdapter() {
@@ -204,18 +235,34 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void openFile() {
+        // sets look and feel for JFileChooser to os look and feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {
+            System.out.println("MASSIVE ERROR LMAO!");
+        }
+        
         // create window to select a jpg or png file
         JFileChooser chooseFile = new JFileChooser(System.getProperty("user.dir"));
         chooseFile.setAcceptAllFileFilterUsed(false);
-        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg","jfif","pjpeg", "pjp","png"));
-        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("PNG file", "png"));
+        chooseFile.addChoosableFileFilter(new FileNameExtensionFilter("JPG or PNG Image", "jpg","jfif","pjpeg", "pjp","png"));
+        chooseFile.setDialogTitle("Choose File to Dreamify!");
 
-        if (chooseFile.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+        if (chooseFile.showOpenDialog(appWindow) == JFileChooser.APPROVE_OPTION) {
             baseImage = chooseFile.getSelectedFile().toString();
             if (baseImage.equals(openImage)) return;
             //warn user if file is large
             checkFileLength(baseImage,120.0);
             setImage(baseImage);
+        }
+
+        // reset so it doesn't mess with other components
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        }
+        catch (Exception e) {
+            System.out.println("MASSIVE ERROR!");
         }
     }
     
@@ -288,10 +335,15 @@ public class OpenFileGUI extends JFrame {
         }
     }
 
-    private void openLayerItem() {
-        JOptionPane.showMessageDialog(appWindow, "Layers impact what images are classified and enhanced in any given dream. If your dreamification was unsatisfactory, try changing the preset. Or enable advanced settings to have even more control");
+    private void openLayerDepthItem() {
+        JOptionPane.showMessageDialog(appWindow, "Layers impact what image features are recognized and enhanced in any given dream.\n" +
+                                                "If your dreamification was unsatisfactory, try changing the preset.\n" + 
+                                                "Or enable advanced settings to have even more control\n\n" +
+                                                "Depth determines how deep the dreamification goes. A smaller depth will\n" +
+                                                "results in faster processing times, but less intense dreams.", "Layers/Depth Info", JOptionPane.INFORMATION_MESSAGE);
         return;
     }
+
     private static void saveImage(File output) {
        JFileChooser fileChooser = new JFileChooser();
        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -373,6 +425,8 @@ public class OpenFileGUI extends JFrame {
                         layerLabel.setVisible(true);
                         layer1Select.setVisible(true);
                         layer2Select.setVisible(true);
+                        depthLabel.setVisible(true);
+                        depthSelect.setVisible(true);
                         styleSelect.addItem("Custom");
                     } else {
                         if (styleSelect.getSelectedItem() == "Custom") {
@@ -383,14 +437,16 @@ public class OpenFileGUI extends JFrame {
                         layerLabel.setVisible(false);
                         layer1Select.setVisible(false);
                         layer2Select.setVisible(false);
+                        depthLabel.setVisible(false);
+                        depthSelect.setVisible(true);
                         styleSelect.removeItem("Custom");
                     }
                     break;
                 case ("infoItem"):
                     openinfoItem();
                     break;
-                case ("layerItem"):    
-                    openLayerItem();
+                case ("layerDepthItem"):    
+                    openLayerDepthItem();
                     break;
                 case ("dream"):
                     DreamWorker dw = new DreamWorker();
@@ -409,17 +465,12 @@ public class OpenFileGUI extends JFrame {
                     setImage(baseImage);
                     break;
                 case ("style"):
-                    if ((styleSelect.getSelectedItem()).equals("Glitch")) {
-                        layer1Select.setSelectedIndex(9);
-                        layer2Select.setSelectedIndex(6);
-                    }
-                    else if ((styleSelect.getSelectedItem()).equals("Disease")) {
-                        layer1Select.setSelectedIndex(8);
-                        layer2Select.setSelectedIndex(9);
-                    }
-                    else if ((styleSelect.getSelectedItem()).equals("Electric")) {
-                        layer1Select.setSelectedIndex(8);
-                        layer2Select.setSelectedIndex(1);
+                    for (int i = 0; i < stylePresets.size(); i++) {
+                        if ((styleSelect.getSelectedItem()).equals(stylePresets.get(i))) {
+                            layer1Select.setSelectedIndex(stylePresetLayers.get(i)[0]);
+                            layer2Select.setSelectedIndex(stylePresetLayers.get(i)[1]);
+                            break;
+                        }
                     }
                     break;
                 case ("layer"):
@@ -439,6 +490,57 @@ public class OpenFileGUI extends JFrame {
                     }
                     styleSelect.setSelectedItem("Custom");
                     break;
+                case ("createCustom"):
+                    // layers input
+                    JLabel layerLabel = new JLabel("Layers");
+
+                    JComboBox<String> layerList1 = new JComboBox<String>(layerOptions);
+                    layerList1.setPreferredSize(new Dimension(45, 30));
+                    layerList1.setFont(new Font("Sans", Font.BOLD, 14));
+                    layerList1.setSelectedIndex(0);
+
+                    JComboBox<String> layerList2 = new JComboBox<String>(layerOptions);
+                    layerList2.setPreferredSize(new Dimension(45, 30));
+                    layerList2.setFont(new Font("Sans", Font.BOLD, 14));
+                    layerList2.setSelectedIndex(9);
+                    
+                    // name input
+                    JLabel nameLabel = new JLabel("Preset Name");
+                    JTextField textField = new JTextField(10);
+
+                    // panels for main panel
+                    JPanel listPanel = new JPanel();
+                    listPanel.add(layerLabel);
+                    listPanel.add(layerList1);
+                    listPanel.add(layerList2);
+
+                    JPanel inputPanel = new JPanel();
+                    inputPanel.add(nameLabel);
+                    inputPanel.add(textField);
+
+                    JPanel mainPanel = new JPanel(new BorderLayout());
+                    mainPanel.add(listPanel, BorderLayout.NORTH);
+                    mainPanel.add(inputPanel, BorderLayout.SOUTH);
+
+                    int result = JOptionPane.showConfirmDialog(appWindow, mainPanel, "Choose Layers", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+
+                    // user clicks OK
+                    if (result == 0) {
+                        String name = textField.getText();
+                        
+                        if (name != null) {
+                            // add name to style prests
+                            stylePresets.add(name);
+
+                            // add layers to style preset layers
+                            int layer1 = Integer.parseInt(layerList1.getSelectedItem().toString()) - 1;
+                            int layer2 = Integer.parseInt(layerList2.getSelectedItem().toString()) - 1;
+                            stylePresetLayers.add(new int[]{layer1, layer2});
+
+                            // add element to styles
+                            presets.addElement(name);
+                        }
+                    }
                 }
             }
         }
@@ -448,15 +550,16 @@ public class OpenFileGUI extends JFrame {
         protected Void doInBackground() throws Exception {
             
             OpenFileGUI.dreamButton.setEnabled(false);
-            
-            // create progress bar
-            DreamProgress dp = new DreamProgress();
-            dp.execute();
 
             // run dream
             // get layers from selection
             String layer1 = String.valueOf(Integer.parseInt(layer1Select.getSelectedItem().toString())-1);
             String layer2 = String.valueOf(Integer.parseInt(layer2Select.getSelectedItem().toString())-1);
+            String depth = String.valueOf(-Integer.parseInt(depthSelect.getSelectedItem().toString()));
+
+            // create progress bar
+            DreamProgress dp = new DreamProgress(depthSelect.getSelectedItem().toString());
+            dp.execute();
 
             // start python script with file path and layers as arguments
             ProcessBuilder startProcess;
@@ -486,6 +589,9 @@ public class OpenFileGUI extends JFrame {
                         int output;
                         if ((output = checkIfInteger(pythonOutput)) > 0) {
                             dreamProgress.setValue(output);
+
+                            int percent = output / Math.abs((Integer.parseInt(depth) - 1));
+                            dreamProgress.setString(String.format("Dreamifying image... %d%%", percent));
                         }
                     }
                 }
@@ -526,19 +632,23 @@ class ImageLoader extends SwingWorker<Void, Void> {
 }
 
 class DreamProgress extends SwingWorker<Void, Void> {
+    int max;
+    
+    DreamProgress(String depth) {
+        max = (Integer.parseInt(depth) + 1) * 100;
+    }
+    
     @Override
     protected Void doInBackground() throws Exception {
-        
-        int max = Math.abs((Integer.parseInt(OpenFileGUI.depth) - 1) * 100);
-        
         OpenFileGUI.dreamProgress = new JProgressBar(0, max);
         OpenFileGUI.dreamProgress.setValue(0);
+        OpenFileGUI.dreamProgress.setOpaque(true);
         OpenFileGUI.dreamProgress.setStringPainted(true);
-        OpenFileGUI.dreamProgress.setString("Dreamifying image...");
+        OpenFileGUI.dreamProgress.setString("Dreamifying image... 0%");
         OpenFileGUI.dreamProgress.setFont(new Font("Sans", Font.BOLD, 20));
-
+        
         OpenFileGUI.dreamProgress.setBackground(Color.decode("#0b1622"));
-        OpenFileGUI.dreamProgress.setForeground(Color.decode("#3db4f2"));
+        OpenFileGUI.dreamProgress.setForeground(Color.decode("#6382bf"));
         OpenFileGUI.dreamProgress.setBorderPainted(false);
 
         OpenFileGUI.imageSpace.removeAll();
