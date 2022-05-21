@@ -1,5 +1,3 @@
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,7 +7,10 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.*;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.event.HyperlinkEvent;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.lang.Math;
@@ -36,10 +37,13 @@ public class OpenFileGUI extends JFrame {
     private JLabel styleLabel;
     private JCheckBoxMenuItem advancedItem;
     private DefaultComboBoxModel<String> presets;
-    private ArrayList<String> stylePresets;
-    private ArrayList<int[]> stylePresetLayers;
-    private String[] layerOptions = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
-    private String[] depthOptions = { "1", "2", "3", "4", "5", "6" };
+    private ArrayList<ArrayList<String>> stylePresets;
+    private ArrayList<ArrayList<int[]>> stylePresetLayers;
+    private DefaultComboBoxModel<String> layer1Options;
+    private DefaultComboBoxModel<String> layer2Options;
+    private DefaultComboBoxModel<String> depthOptions;
+    private int dreamModel = 0;
+    private JLabel dreamModelLabel;
 
     public static void main(String[] args) {     
         new OpenFileGUI().setupGUI();
@@ -53,9 +57,8 @@ public class OpenFileGUI extends JFrame {
         appWindow.setLocationRelativeTo(null); // centers window
 
         //icon
-        Image icon = Toolkit.getDefaultToolkit().getImage("forg.png");
+        Image icon = Toolkit.getDefaultToolkit().getImage("icons\\frog.png");
         appWindow.setIconImage(icon);
-        
 
         // create menu bar
         JMenuBar menuBar = new JMenuBar();
@@ -76,11 +79,32 @@ public class OpenFileGUI extends JFrame {
         // advanced settings
         JMenu settingsMenu = new JMenu ("Settings");
         settingsMenu.setFont(new Font("Sans", Font.BOLD, 12));
-        advancedItem = new JCheckBoxMenuItem("Advanced options");
         settingsMenu.setForeground(Color.decode("#d3d5f3"));
+        advancedItem = new JCheckBoxMenuItem("Advanced options");
         settingsMenu.add(advancedItem);
+
+        // custom presets
         JMenuItem customPresetItem = new JMenuItem("Create Custom Preset");
         settingsMenu.add(customPresetItem);
+
+        // model selection
+        JMenu setModelMenu = new JMenu("Dream Models");
+        setModelMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        setModelMenu.setForeground(Color.BLACK);
+        ButtonGroup modelGroup = new ButtonGroup();
+        JRadioButtonMenuItem mobilenetv2 = new JRadioButtonMenuItem("MobileNetV2", true);
+        JRadioButtonMenuItem inceptionv3 = new JRadioButtonMenuItem("InceptionV3");
+        JRadioButtonMenuItem xception = new JRadioButtonMenuItem("Xception");
+        JRadioButtonMenuItem resnet50 = new JRadioButtonMenuItem("ResNet50");
+        modelGroup.add(mobilenetv2);
+        modelGroup.add(inceptionv3);
+        modelGroup.add(xception);
+        modelGroup.add(resnet50);
+        setModelMenu.add(mobilenetv2);
+        setModelMenu.add(inceptionv3);
+        setModelMenu.add(xception);
+        setModelMenu.add(resnet50);
+        settingsMenu.add(setModelMenu);
 
         // get help
         JMenu helpMenu = new JMenu("Help");
@@ -90,13 +114,26 @@ public class OpenFileGUI extends JFrame {
         helpMenu.add(infoItem);
 
         JMenuItem layerDepthItem = new JMenuItem("Layers/Depth");
+        JMenuItem modelInfoItem = new JMenuItem("Models");
         helpMenu.add(layerDepthItem);
+        helpMenu.add(modelInfoItem);
+        
+        // set model label
+        JPanel modelLabelPanel = new JPanel(new BorderLayout());
+        modelLabelPanel.setBorder(new EmptyBorder(0, 0, 0, 8));
+        modelLabelPanel.setBackground(Color.decode("#152232"));
+        modelLabelPanel.setFont(new Font("Sans", Font.BOLD, 12));
+        dreamModelLabel = new JLabel("Model: MobileNetV2");
+        dreamModelLabel.setForeground(Color.decode("#d3d5f3"));
+        dreamModelLabel.setToolTipText("Current model being used. Please review \"Help.\" for more details.");
+        modelLabelPanel.add(dreamModelLabel, BorderLayout.EAST);
         
         // add to menu bar
         menuBar.add(fileMenu);
         menuBar.add(settingsMenu);
         menuBar.add(helpMenu);
         menuBar.add(Box.createVerticalStrut(30));
+        menuBar.add(modelLabelPanel);
 
         // add to app window
         appWindow.add(menuBar, BorderLayout.NORTH);
@@ -119,9 +156,29 @@ public class OpenFileGUI extends JFrame {
         styleLabel.setForeground(Color.decode("#d3d5f3"));
 
         // instantiate presets
-        presets = new DefaultComboBoxModel<String>(new String[]{"Glitch", "Disease", "Electric"});
-        stylePresets = new ArrayList<>(Arrays.asList("Glitch", "Disease", "Electric"));
-        stylePresetLayers = new ArrayList<>(Arrays.asList(new int[][]{{ 9, 6 }, { 8, 9 }, { 8, 1 }}));
+        stylePresets = new ArrayList<ArrayList<String>>();
+        stylePresetLayers = new ArrayList<ArrayList<int[]>>();
+
+        // MobileNetV2 presets
+        stylePresets.add(new ArrayList<>(Arrays.asList("Glitch", "Disease", "Electric")));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 9, 6 }, { 8, 9 }, { 8, 1 }})));
+
+        // InceptionV3 presets
+        stylePresets.add(new ArrayList<>(Arrays.asList("Scatter", "Manifest", "Bubbles")));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 0, 2 }, { 4, 6 }, { 9, 10 }})));
+
+        // Xception presets
+        stylePresets.add(new ArrayList<>(Arrays.asList("Vision", "Swarm", "Float")));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 0, 1 }, { 4, 5 }, { 10, 11 }})));
+
+        // ResNet50 presets
+        stylePresets.add(new ArrayList<>(Arrays.asList("Crust", "Squiggle", "Dazzle")));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 1, 3 }, { 9, 10 }, { 14, 15 }})));
+
+        // prests gets current model
+        String[] tmpPreset = new String[stylePresets.get(dreamModel).size()];
+        tmpPreset = stylePresets.get(dreamModel).toArray(tmpPreset);
+        presets = new DefaultComboBoxModel<String>(tmpPreset);
         
         // style selection
         styleSelect = new JComboBox<String>(presets);
@@ -130,21 +187,28 @@ public class OpenFileGUI extends JFrame {
         userOptions.add(styleLabel);
         userOptions.add(styleSelect);
 
+        // instantiate layer options
+        layer1Options = new DefaultComboBoxModel<String>(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
+        layer2Options = new DefaultComboBoxModel<String>(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
+        
         // layer selection
         layerLabel = new JLabel("Layers");
         layerLabel.setFont(new Font("Sans", Font.PLAIN, 14));
         layerLabel.setForeground(Color.decode("#d3d5f3"));
 
-        layer1Select = new JComboBox<String>(layerOptions);
+        layer1Select = new JComboBox<String>(layer1Options);
         layer1Select.setPreferredSize(new Dimension(45, 30));
         layer1Select.setFont(new Font("Sans", Font.BOLD, 14));
         layer1Select.setSelectedIndex(9);
-        layer2Select = new JComboBox<String>(layerOptions);
+        layer2Select = new JComboBox<String>(layer2Options);
         layer2Select.setPreferredSize(new Dimension(45, 30));
         layer2Select.setFont(new Font("Sans", Font.BOLD, 14));
         layer2Select.setSelectedIndex(6);
         layer2Select.add(Box.createHorizontalStrut(4));
 
+        // instantiate depth options
+        depthOptions = new DefaultComboBoxModel<String>(new String[]{ "1", "2", "3", "4", "5", "6" });
+        
         // depth selection
         depthLabel = new JLabel("Depth");
         depthLabel.setFont(new Font("Sans", Font.PLAIN, 14));
@@ -155,6 +219,7 @@ public class OpenFileGUI extends JFrame {
         depthSelect.setFont(new Font("Sans", Font.BOLD, 14));
         depthSelect.setSelectedIndex(3);
         
+        // add all options
         userOptions.add(layerLabel);
         userOptions.add(layer1Select);
         userOptions.add(layer2Select);
@@ -200,6 +265,8 @@ public class OpenFileGUI extends JFrame {
         infoItem.addActionListener(new ButtonClickListener());
         layerDepthItem.setActionCommand("layerDepthItem");
         layerDepthItem.addActionListener(new ButtonClickListener());
+        modelInfoItem.setActionCommand("modelInfoItem");
+        modelInfoItem.addActionListener(new ButtonClickListener());
         dreamButton.setActionCommand("dream");
         dreamButton.addActionListener(new ButtonClickListener());
         resetButton.setActionCommand("reset");
@@ -212,6 +279,10 @@ public class OpenFileGUI extends JFrame {
         layer2Select.addActionListener(new ButtonClickListener());
         customPresetItem.setActionCommand("createCustom");
         customPresetItem.addActionListener(new ButtonClickListener());
+        mobilenetv2.addActionListener(e -> changeModel(0));
+        inceptionv3.addActionListener(e -> changeModel(1));
+        xception.addActionListener(e -> changeModel(2));
+        resnet50.addActionListener(e -> changeModel(3));
 
         // end program when window closes
         appWindow.addWindowListener(new WindowAdapter() {
@@ -219,6 +290,62 @@ public class OpenFileGUI extends JFrame {
                System.exit(0);
             }        
          }); 
+    }
+
+    private void changeModel(int model) {
+        // BAD, BUT SYNCHRONIZATION ISSUES OTHERWISE (LOCK LATER)
+        // get presets for model
+        for (int i = 0; i < stylePresets.get(model).size(); i++)
+            presets.addElement(stylePresets.get(model).get(i));
+        for (int i = 0; i < stylePresets.get(dreamModel).size(); i++)
+            presets.removeElement(stylePresets.get(dreamModel).get(i));
+        
+        // set dream model
+        dreamModel = model;
+        
+        // update layers
+        switch (dreamModel) {
+            case 0:
+                dreamModelLabel.setText("Model: MobileNetV2");
+                while (layer1Options.getSize() != 10) {
+                    layer1Options.removeElementAt(layer1Options.getSize() - 1);
+                    layer2Options.removeElementAt(layer2Options.getSize() - 1);
+                }
+                break;
+            case 1:
+                dreamModelLabel.setText("Model: InceptionV3");
+                while (layer1Options.getSize() != 11) {
+                    if (layer1Options.getSize() < 11) {
+                        layer1Options.addElement(Integer.toString(layer1Options.getSize() + 1));
+                        layer2Options.addElement(Integer.toString(layer2Options.getSize() + 1));
+                    }
+                    else {
+                        layer1Options.removeElementAt(layer1Options.getSize() - 1);
+                        layer2Options.removeElementAt(layer2Options.getSize() - 1);
+                    }   
+                }
+                break;
+            case 2:
+            dreamModelLabel.setText("Model: Xception");
+                while (layer1Options.getSize() != 12) {
+                    if (layer1Options.getSize() < 12) {
+                        layer1Options.addElement(Integer.toString(layer1Options.getSize() + 1));
+                        layer2Options.addElement(Integer.toString(layer2Options.getSize() + 1));
+                    } 
+                    else {
+                        layer1Options.removeElementAt(layer1Options.getSize() - 1);
+                        layer2Options.removeElementAt(layer2Options.getSize() - 1);
+                    } 
+                }
+                break;
+            default:
+            dreamModelLabel.setText("Model: ResNet50");
+                while (layer1Options.getSize() != 16) {
+                    layer1Options.addElement(Integer.toString(layer1Options.getSize() + 1));
+                    layer2Options.addElement(Integer.toString(layer2Options.getSize() + 1));
+                }
+                break;
+        }
     }
 
     private int checkIfInteger(String output) {
@@ -349,6 +476,14 @@ public class OpenFileGUI extends JFrame {
         return;
     }
 
+    private void openModelInfoItem() {
+        JOptionPane.showMessageDialog(appWindow,
+                                    "The DeepDreamer program uses several Convulutional Neural Network (CNN) models to create dreamified images.\n" +
+                                    "All of these models have their own distinct architecture and produce wildly different flavors of dreams\n" +
+                                    "despite all being trained the same.", "Model Info", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
     private static void saveImage(File output) {
        JFileChooser fileChooser = new JFileChooser();
        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -434,17 +569,16 @@ public class OpenFileGUI extends JFrame {
                         depthSelect.setVisible(true);
                         styleSelect.addItem("Custom");
                     } else {
-                        if (styleSelect.getSelectedItem() == "Custom") {
-                            styleSelect.setSelectedItem("Glitch");
-                            layer1Select.setSelectedIndex(9);
-                            layer2Select.setSelectedIndex(6);
-                        }
                         layerLabel.setVisible(false);
                         layer1Select.setVisible(false);
                         layer2Select.setVisible(false);
                         depthLabel.setVisible(false);
-                        depthSelect.setVisible(true);
+                        depthSelect.setVisible(false);
                         styleSelect.removeItem("Custom");
+
+                        styleSelect.setSelectedItem(stylePresets.get(dreamModel).get(0));
+                        layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(0)[0]);
+                        layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(0)[1]);
                     }
                     break;
                 case ("infoItem"):
@@ -453,44 +587,31 @@ public class OpenFileGUI extends JFrame {
                 case ("layerDepthItem"):    
                     openLayerDepthItem();
                     break;
+                case ("modelInfoItem"):
+                    openModelInfoItem();
+                    break;
                 case ("dream"):
                     DreamWorker dw = new DreamWorker();
-                    dw.addPropertyChangeListener(new PropertyChangeListener() {
-                        @Override
-                        public void propertyChange(PropertyChangeEvent evt) {
-                            if ("progress".equals(evt.getPropertyName())) {
-                                // do progress bar stuff
-                            }
-                        }
-                    });
                     dw.execute();
                     break;
                 case ("reset"):
-
                     setImage(baseImage);
                     break;
                 case ("style"):
-                    for (int i = 0; i < stylePresets.size(); i++) {
-                        if ((styleSelect.getSelectedItem()).equals(stylePresets.get(i))) {
-                            layer1Select.setSelectedIndex(stylePresetLayers.get(i)[0]);
-                            layer2Select.setSelectedIndex(stylePresetLayers.get(i)[1]);
+                for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
+                        if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
+                            layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[0]);
+                            layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[1]);
                             break;
                         }
                     }
                     break;
                 case ("layer"):
-                    if (layer1Select.getSelectedIndex() == 9) {
-                        if (layer2Select.getSelectedIndex() == 6) {
-                            styleSelect.setSelectedItem("Glitch");
-                            break;
-                        }
-                    } else if (layer1Select.getSelectedIndex() == 8) {
-                        if (layer2Select.getSelectedIndex() == 9) {
-                            styleSelect.setSelectedItem("Disease");
-                            break;
-                        } else if (layer2Select.getSelectedIndex() == 1) {
-                            styleSelect.setSelectedItem("Electric");
-                            break;
+                    for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
+                        if (layer1Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[0]
+                            && layer2Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[1]) {
+                                styleSelect.setSelectedIndex(i);
+                                break;
                         }
                     }
                     styleSelect.setSelectedItem("Custom");
@@ -499,12 +620,12 @@ public class OpenFileGUI extends JFrame {
                     // layers input
                     JLabel layerLabel = new JLabel("Layers");
 
-                    JComboBox<String> layerList1 = new JComboBox<String>(layerOptions);
+                    JComboBox<String> layerList1 = new JComboBox<String>(layer1Options);
                     layerList1.setPreferredSize(new Dimension(45, 30));
                     layerList1.setFont(new Font("Sans", Font.BOLD, 14));
                     layerList1.setSelectedIndex(0);
 
-                    JComboBox<String> layerList2 = new JComboBox<String>(layerOptions);
+                    JComboBox<String> layerList2 = new JComboBox<String>(layer2Options);
                     layerList2.setPreferredSize(new Dimension(45, 30));
                     layerList2.setFont(new Font("Sans", Font.BOLD, 14));
                     layerList2.setSelectedIndex(9);
@@ -535,12 +656,12 @@ public class OpenFileGUI extends JFrame {
                         
                         if (name != null) {
                             // add name to style prests
-                            stylePresets.add(name);
+                            stylePresets.get(dreamModel).add(name);
 
                             // add layers to style preset layers
                             int layer1 = Integer.parseInt(layerList1.getSelectedItem().toString()) - 1;
                             int layer2 = Integer.parseInt(layerList2.getSelectedItem().toString()) - 1;
-                            stylePresetLayers.add(new int[]{layer1, layer2});
+                            stylePresetLayers.get(dreamModel).add(new int[]{layer1, layer2});
 
                             // add element to styles
                             presets.addElement(name);
@@ -571,9 +692,9 @@ public class OpenFileGUI extends JFrame {
 
             String os = System.getProperty("os.name");
             if (os.contains("Windows"))
-                startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", openImage, layer1, layer2, depth);
+                startProcess = new ProcessBuilder("python", System.getProperty("user.dir") + "\\main.py", openImage, Integer.toString(dreamModel), layer1, layer2, depth);
             else
-                startProcess = new ProcessBuilder("python3", System.getProperty("user.dir") + "\\main.py", openImage, layer1, layer2, depth);
+                startProcess = new ProcessBuilder("python3", System.getProperty("user.dir") + "\\main.py", openImage, Integer.toString(dreamModel), layer1, layer2, depth);
 
             try {
                 Process pythonScript = startProcess.start();

@@ -21,8 +21,8 @@ import numpy as np
 import PIL.Image as Image
 from io import BytesIO
 import cv2
-import os
 import sys
+import os
 
 
 # Normalize an image
@@ -102,11 +102,11 @@ class TiledGradients(tf.Module):
         return gradients
 
 
-def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octaves=range(-4, 1), octave_scale=1.5):
+def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octaves=range(-4, 1), octave_scale=1.5, key=0):
     progress = 0
     img = tf.keras.utils.img_to_array(img)
     base_shape = tf.shape(img)
-    img = tf.keras.applications.mobilenet_v2.preprocess_input(img)
+    img = preprocessImage(key, img)
 
     initial_shape = img.shape[:-1]
     img = tf.image.resize(img, initial_shape)
@@ -129,17 +129,71 @@ def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, octav
     return result
 
 
-""" MAIN LOOP HERE """
-# layers (0-9): 0 -> 2 | 1 -> 4 | 2 -> 5 | 3 -> 7 | 4 -> 8 | 5 -> 9 | 6 -> 11 | 7 -> 12 | 8 -> 14 | 9 -> 15
-concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add', 'block_8_add', 'block_9_add', 'block_11_add', 'block_12_add', 'block_14_add', 'block_15_add']
+# normalizes pixels between [-1, 1]
+def preprocessImage(key, img):
+    if key == 0:
+        # MobileNetV2
+        return tf.keras.applications.mobilenet_v2.preprocess_input(img)
+    elif key == 1:
+        # IncetionV3
+        return tf.keras.applications.inception_v3.preprocess_input(img)
+    elif key == 2:
+        # Xception
+        return tf.keras.applications.xception.preprocess_input(img)
+    else:
+        # ResNet50
+        return tf.keras.applications.resnet50.preprocess_input(img)
+    
 
-# grab image file path and layers from arguments
+# MoblieNetV2, InceptionV3, ResNet50, VGG16, VGG19, and Xception models
+def getModel(key, layer_1, layer_2):
+    if key == 0:
+        # MobileNetV2 - 10 layers
+        concatenated_layers = ['block_2_add', 'block_4_add', 'block_5_add', 'block_7_add', 'block_8_add', 'block_9_add', 'block_11_add', 'block_12_add', 'block_14_add', 'block_15_add']
+        names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
+        
+        base_model = tf.keras.applications.MobileNetV2(include_top=False, weights='imagenet')
+        
+        return base_model, names
+    elif key == 1:
+        # IncetionV3 - 11 layers
+        concatenated_layers = ['mixed0', 'mixed1', 'mixed2', 'mixed3', 'mixed4', 'mixed5', 'mixed6', 'mixed7', 'mixed8', 'mixed9', 'mixed10']
+        names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
+        
+        base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
+        
+        return base_model, names
+    elif key == 2:
+        # Xception - 12 layers
+        concatenated_layers = ["add", "add_1", "add_2", "add_3", "add_4", "add_5", "add_6", "add_7", "add_8", "add_9", "add_10", "add_11"]
+        names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
+        
+        base_model = tf.keras.applications.Xception(include_top=False, weights='imagenet')
+        
+        return base_model, names
+    else:
+        # ResNet50 - 16 layers
+        concatenated_layers = ["conv2_block1_add", "conv2_block2_add", "conv2_block3_add","conv3_block1_add",
+                               "conv3_block2_add","conv3_block3_add", "conv3_block4_add", "conv4_block1_add",
+                               "conv4_block2_add", "conv4_block3_add", "conv4_block4_add", "conv4_block5_add",
+                               "conv4_block6_add", "conv5_block1_add", "conv5_block2_add", "conv5_block3_add"]
+        names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
+        
+        base_model = tf.keras.applications.ResNet50(include_top=False, weights='imagenet')
+        
+        return base_model, names
+
+
+""" MAIN LOOP HERE """
+# grab image file path model, layers, and depth from arguments
 file_path = sys.argv[1]
-layer_1 = int(sys.argv[2])
-layer_2 = int(sys.argv[3])
-depth = int(sys.argv[4])
+model_key = int(sys.argv[2])
+layer_1 = int(sys.argv[3])
+layer_2 = int(sys.argv[4])
+depth = int(sys.argv[5])
 file_name = os.path.splitext(os.path.basename(file_path))[0]
 
+# create/set output directory
 if not os.path.isdir('./output'): os.mkdir('./output')
 output_directory = './output'
 
@@ -151,12 +205,10 @@ if original_img.format != 'JPEG':
     original_img.save(buffer, format='JPEG')
     original_img = Image.open(buffer)
 
-# layers whose activations to maximize
-names = [concatenated_layers[layer_1], concatenated_layers[layer_2]]
-
 # Convolutional Neural Network Model
-base_model = tf.keras.applications.MobileNetV2(include_top=False, weights='imagenet')
+base_model, names = getModel(model_key, layer_1, layer_2)
 
+# get chosen layers
 layers = [base_model.get_layer(name).output for name in names]
 
 # Create the feature extraction model
@@ -171,7 +223,7 @@ shift, img_rolled = random_roll(np.array(original_img), 512)
 
 # dreamify
 get_tiled_gradients = TiledGradients(dream_model)
-img = run_deep_dream_with_octaves(img=original_img, step_size=0.01, octaves=range(depth, 1))
+img = run_deep_dream_with_octaves(img=original_img, step_size=0.01, octaves=range(depth, 1), key=model_key)
 
 # make image original size
 img = tf.image.resize(img, base_shape)
