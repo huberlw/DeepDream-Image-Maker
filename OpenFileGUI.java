@@ -472,46 +472,61 @@ public class OpenFileGUI extends JFrame {
 
     private void openLayerDepthItem() {
         JOptionPane.showMessageDialog(appWindow, "Layers impact what image features are recognized and enhanced in any given dream.\n" +
-                                                "If your dreamification was unsatisfactory, try changing the preset.\n" + 
-                                                "Or enable advanced settings to have even more control\n\n" +
+                                                "Low-level layers enhance simple features, while high-level layers enhance complex features.\n\n" +
                                                 "Depth determines how deep the dreamification goes. A smaller depth will\n" +
-                                                "results in faster processing times, but less intense dreams.", "Layers/Depth Info", JOptionPane.INFORMATION_MESSAGE);
-        return;
+                                                "result in faster processing times, but less intense dreams.\n\nFor more information on " +
+                                                "layers or depth, please review \"How it works\" in the Help Tab.", "Layers/Depth Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void openModelInfoItem() {
         JOptionPane.showMessageDialog(appWindow,
-                                    "The DeepDreamer program uses several Convulutional Neural Network (CNN) models to create dreamified images.\n" +
-                                    "All of these models have their own distinct architecture and produce wildly different flavors of dreams\n" +
-                                    "despite all being trained the same.", "Model Info", JOptionPane.INFORMATION_MESSAGE);
+                                    "DeepDreamer uses several models of Convulutional Neural Networks to create dreamified images.\n" +
+                                    "These models have their own distinct architecture and produce wildly different styles of dreams.\n\n" +
+                                    "The following models are currnetly in use: MobileNetV2, InceptionV3, Xception, and ResNet50.", "Model Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private static void saveImage(File output) {
-       JFileChooser fileChooser = new JFileChooser();
-       fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-       fileChooser.setAcceptAllFileFilterUsed(false);
-       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG file", "png"));
-       fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg"));
+        // sets look and feel for JFileChooser to os look and feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {
+            System.out.println("MASSIVE ERROR LMAO!");
+        }
+       
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG file", "png"));
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG file", "jpg"));
 
-       if (fileChooser.showSaveDialog(imageSpace) == JFileChooser.APPROVE_OPTION) {
-           File fileToSave = fileChooser.getSelectedFile();
-           String name = fileToSave.toString();
+        if (fileChooser.showSaveDialog(imageSpace) == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String name = fileToSave.toString();
 
-           if (!name.endsWith("png") && fileChooser.getFileFilter().getDescription().equals("PNG")) {
-               name += ".png";
-               save("png", name, output);
-           }
-           else if (!name.endsWith("jpg") && fileChooser.getFileFilter().getDescription().equals("JPG")) {
-               name += ".jpg";
-               save("jpg", name, output);
-           }
-           else if (fileChooser.getFileFilter().getDescription().equals("JPG")){
-               save("jpg", name, output);
-           }
-           else {
-               save("png", name, output);
-           }
-       }
+            if (!name.endsWith("png") && fileChooser.getFileFilter().getDescription().equals("PNG")) {
+                name += ".png";
+                save("png", name, output);
+            }
+            else if (!name.endsWith("jpg") && fileChooser.getFileFilter().getDescription().equals("JPG")) {
+                name += ".jpg";
+                save("jpg", name, output);
+            }
+            else if (fileChooser.getFileFilter().getDescription().equals("JPG")){
+                save("jpg", name, output);
+            }
+            else {
+                save("png", name, output);
+            }
+        }
+
+        // reset so it doesn't mess with other components
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        }
+        catch (Exception e) {
+            System.out.println("MASSIVE ERROR!");
+        }
     }
 
     private static void save(String type, String name, File output)
