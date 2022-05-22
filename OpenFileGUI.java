@@ -8,7 +8,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.plaf.ComponentUI;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.lang.Math;
@@ -42,6 +44,11 @@ public class OpenFileGUI extends JFrame {
     private DefaultComboBoxModel<String> depthOptions;
     private int dreamModel = 0;
     private JLabel dreamModelLabel;
+    private int depthTemp;
+    private int modelTemp;
+    private JMenu setModelMenu;
+    private JPanel modelLabelPanel;
+    private JMenuItem customPresetItem;
 
     public static void main(String[] args) {     
         new OpenFileGUI().setupGUI();
@@ -78,15 +85,12 @@ public class OpenFileGUI extends JFrame {
         JMenu settingsMenu = new JMenu ("Settings");
         settingsMenu.setFont(new Font("Sans", Font.BOLD, 12));
         settingsMenu.setForeground(Color.decode("#d3d5f3"));
-        advancedItem = new JCheckBoxMenuItem("Advanced options");
+        advancedItem = new JCheckBoxMenuItem("Advanced Features");
+        advancedItem.setUI(new KeepMenuOpen());
         settingsMenu.add(advancedItem);
 
-        // custom presets
-        JMenuItem customPresetItem = new JMenuItem("Create Custom Preset");
-        settingsMenu.add(customPresetItem);
-
         // model selection
-        JMenu setModelMenu = new JMenu("Dream Models");
+        setModelMenu = new JMenu("Dream Models");
         setModelMenu.setFont(new Font("Sans", Font.BOLD, 12));
         setModelMenu.setForeground(Color.BLACK);
         ButtonGroup modelGroup = new ButtonGroup();
@@ -103,11 +107,17 @@ public class OpenFileGUI extends JFrame {
         setModelMenu.add(xception);
         setModelMenu.add(resnet50);
         settingsMenu.add(setModelMenu);
+        setModelMenu.setEnabled(false);
+
+        // custom presets
+        customPresetItem = new JMenuItem("Create Custom Filter");
+        settingsMenu.add(customPresetItem);
+        customPresetItem.setEnabled(false);
 
         // get help
         JMenu helpMenu = new JMenu("Help");
         helpMenu.setFont(new Font("Sans", Font.BOLD, 12));
-        JMenuItem infoItem = new JMenuItem("How it Works");
+        JMenuItem infoItem = new JMenuItem("How This Works");
         helpMenu.setForeground(Color.decode("#d3d5f3"));
         helpMenu.add(infoItem);
 
@@ -117,7 +127,7 @@ public class OpenFileGUI extends JFrame {
         helpMenu.add(modelInfoItem);
         
         // set model label
-        JPanel modelLabelPanel = new JPanel(new BorderLayout());
+        modelLabelPanel = new JPanel(new BorderLayout());
         modelLabelPanel.setBorder(new EmptyBorder(0, 0, 0, 8));
         modelLabelPanel.setBackground(Color.decode("#152232"));
         modelLabelPanel.setFont(new Font("Sans", Font.BOLD, 12));
@@ -125,6 +135,7 @@ public class OpenFileGUI extends JFrame {
         dreamModelLabel.setForeground(Color.decode("#d3d5f3"));
         dreamModelLabel.setToolTipText("Current model being used. Please review \"Help.\" for more details.");
         modelLabelPanel.add(dreamModelLabel, BorderLayout.EAST);
+        modelLabelPanel.setVisible(false);
         
         // add to menu bar
         menuBar.add(fileMenu);
@@ -149,7 +160,7 @@ public class OpenFileGUI extends JFrame {
         appWindow.add(userOptions, BorderLayout.SOUTH);
 
         // style selection ui
-        styleLabel = new JLabel("Style");
+        styleLabel = new JLabel("Filter");
         styleLabel.setFont(new Font("Sans", Font.PLAIN, 14));
         styleLabel.setForeground(Color.decode("#d3d5f3"));
 
@@ -471,15 +482,17 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void openLayerDepthItem() {
-        JOptionPane.showMessageDialog(appWindow, "Layers impact what image features are recognized and enhanced in any given dream.\n" +
+        JOptionPane.showMessageDialog(appWindow, "<html><i>Note: Layers and depth can only be modified with advanced settings enabled.</i></html>\n\n" +
+                                                "Layers impact what image features are recognized and enhanced in any given dream.\n" +
                                                 "Low-level layers enhance simple features, while high-level layers enhance complex features.\n\n" +
                                                 "Depth determines how deep the dreamification goes. A smaller depth will\n" +
                                                 "result in faster processing times, but less intense dreams.\n\nFor more information on " +
-                                                "layers or depth, please review \"How it works\" in the Help Tab.", "Layers/Depth Info", JOptionPane.INFORMATION_MESSAGE);
+                                                "layers or depth, please review \"How This Works\" in the Help Tab.", "Layers/Depth Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void openModelInfoItem() {
         JOptionPane.showMessageDialog(appWindow,
+                                    "<html><i>Note: The model can only be changed with advanced settings enabled.</i></html>\n\n" + 
                                     "DeepDreamer uses several models of Convulutional Neural Networks to create dreamified images.\n" +
                                     "These models have their own distinct architecture and produce wildly different styles of dreams.\n\n" +
                                     "The following models are currnetly in use: MobileNetV2, InceptionV3, Xception, and ResNet50.", "Model Info", JOptionPane.INFORMATION_MESSAGE);
@@ -578,13 +591,24 @@ public class OpenFileGUI extends JFrame {
                     }
                 case ("advanced"):
                     if (advancedItem.isSelected()) {
+                        depthSelect.setSelectedIndex(depthTemp);
+                        changeModel(modelTemp);
+
                         layerLabel.setVisible(true);
                         layer1Select.setVisible(true);
                         layer2Select.setVisible(true);
                         depthLabel.setVisible(true);
                         depthSelect.setVisible(true);
-                        styleSelect.addItem("Custom");
+
+                        setModelMenu.setEnabled(true);
+                        modelLabelPanel.setVisible(true);
+                        customPresetItem.setEnabled(true);
                     } else {
+                        depthTemp = depthSelect.getSelectedIndex();
+                        modelTemp = dreamModel;
+                        depthSelect.setSelectedIndex(3);
+                        changeModel(0);
+
                         layerLabel.setVisible(false);
                         layer1Select.setVisible(false);
                         layer2Select.setVisible(false);
@@ -595,6 +619,10 @@ public class OpenFileGUI extends JFrame {
                         styleSelect.setSelectedItem(stylePresets.get(dreamModel).get(0));
                         layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(0)[0]);
                         layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(0)[1]);
+
+                        setModelMenu.setEnabled(false);
+                        modelLabelPanel.setVisible(false);
+                        customPresetItem.setEnabled(false);
                     }
                     break;
                 case ("infoItem"):
@@ -633,7 +661,15 @@ public class OpenFileGUI extends JFrame {
                     styleSelect.setSelectedItem("Custom");
                     break;
                 case ("createCustom"):
-                    // layers input
+                    // model reminder
+                    JPanel modelPanel = new JPanel();
+                    modelPanel.setLayout(new BoxLayout(modelPanel, BoxLayout.Y_AXIS));
+                    JLabel modelLabel = new JLabel(dreamModelLabel.getText());
+                    modelLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    modelPanel.add(modelLabel);
+                    modelPanel.add(Box.createVerticalStrut(16));
+
+                     // layers input
                     JLabel layerLabel = new JLabel("Layers");
 
                     JComboBox<String> layerList1 = new JComboBox<String>(layer1Options);
@@ -647,7 +683,7 @@ public class OpenFileGUI extends JFrame {
                     layerList2.setSelectedIndex(9);
                     
                     // name input
-                    JLabel nameLabel = new JLabel("Preset Name");
+                    JLabel nameLabel = new JLabel("Name");
                     JTextField textField = new JTextField(10);
 
                     // panels for main panel
@@ -661,10 +697,11 @@ public class OpenFileGUI extends JFrame {
                     inputPanel.add(textField);
 
                     JPanel mainPanel = new JPanel(new BorderLayout());
-                    mainPanel.add(listPanel, BorderLayout.NORTH);
+                    mainPanel.add(modelPanel, BorderLayout.NORTH);
+                    mainPanel.add(listPanel, BorderLayout.CENTER);
                     mainPanel.add(inputPanel, BorderLayout.SOUTH);
 
-                    int result = JOptionPane.showConfirmDialog(appWindow, mainPanel, "Choose Layers", JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+                    int result = JOptionPane.showConfirmDialog(appWindow, mainPanel, "Create Custom Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
                     // user clicks OK
                     if (result == 0) {
@@ -805,3 +842,15 @@ class DreamProgress extends SwingWorker<Void, Void> {
         super.done();
     }
 }
+
+class KeepMenuOpen extends BasicCheckBoxMenuItemUI {
+
+    @Override
+    protected void doClick(MenuSelectionManager msm) {
+       menuItem.doClick(0);
+    }
+ 
+    public static ComponentUI createUI(JComponent c) {
+       return new KeepMenuOpen();
+    }
+ }
