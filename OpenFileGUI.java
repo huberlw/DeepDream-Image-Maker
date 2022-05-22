@@ -45,7 +45,7 @@ public class OpenFileGUI extends JFrame {
     private DefaultComboBoxModel<String> depthOptions;
     private int dreamModel = 0;
     private JLabel dreamModelLabel;
-    private int depthTemp = 3;
+    private int depthTemp;
     private int modelTemp;
     private JMenu setModelMenu;
     private JPanel modelLabelPanel;
@@ -294,6 +294,8 @@ public class OpenFileGUI extends JFrame {
         layer1Select.addActionListener(new ButtonClickListener());
         layer2Select.setActionCommand("layer");
         layer2Select.addActionListener(new ButtonClickListener());
+        depthSelect.setActionCommand("depth");
+        depthSelect.addActionListener(new ButtonClickListener());
         customPresetItem.setActionCommand("createCustom");
         customPresetItem.addActionListener(new ButtonClickListener());
         mobilenetv2.addActionListener(e -> changeModel(0));
@@ -338,26 +340,34 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void loadProperties(){
+            //depth 
+            depthTemp = Integer.parseInt(getProperty("depth"));
+            System.out.println(getProperty("depth"));
+            depthSelect.setSelectedIndex(depthTemp);
+            //model
+            int modelProperty = Integer.parseInt(getProperty("model"));
+            modelTemp = modelProperty;
+            setModel(modelProperty);
             //advanced
             if (getProperty("advanced").contains("true"))advancedItem.doClick();
-            //model
-            if (getProperty("model").contains("1")){
-                mobilenetv2.setSelected(true);
-                changeModel(1);
-            }
-            if (getProperty("model").contains("1")){
-                inceptionv3.setSelected(true);
-                changeModel(1);
-            }
-            if (getProperty("model").contains("2")){
-                xception.setSelected(true);
-                changeModel(2);
-            }
-            if (getProperty("model").contains("3")){
-                resnet50.setSelected(true);
-                changeModel(3);
-            }
-            return;
+
+    }
+
+    private void setModel(int num) {
+        switch(num) {
+            case 0:
+                mobilenetv2.doClick(); 
+                break;
+            case 1:
+                inceptionv3.doClick();
+                break;
+            case 2:
+                xception.doClick();
+                break;
+            case 3:
+                resnet50.doClick();
+                break;
+        }
     }
 
 
@@ -373,6 +383,7 @@ public class OpenFileGUI extends JFrame {
             styleSelect.removeItem("Custom");
             styleSelect.addItem("Custom");
         }
+
 
         // set dream model
         dreamModel = model;
@@ -423,6 +434,8 @@ public class OpenFileGUI extends JFrame {
                 }
                 break;
         }
+
+        styleSelect.setSelectedIndex(0);
     }
 
     private int checkIfInteger(String output) {
@@ -655,7 +668,7 @@ public class OpenFileGUI extends JFrame {
                 case ("advanced"):
                     if (advancedItem.isSelected()) {
                         depthSelect.setSelectedIndex(depthTemp);
-                        //changeModel(modelTemp);
+                        if(modelTemp != dreamModel) setModel(modelTemp);
 
                         layerLabel.setVisible(true);
                         layer1Select.setVisible(true);
@@ -666,14 +679,16 @@ public class OpenFileGUI extends JFrame {
                         setModelMenu.setEnabled(true);
                         modelLabelPanel.setVisible(true);
                         customPresetItem.setEnabled(true);
+                        styleSelect.removeItem("Custom");
                         styleSelect.addItem("Custom");
+
                         //store in settings
                         setProperty("advanced","true");
                     } else {
                         depthTemp = depthSelect.getSelectedIndex();
                         modelTemp = dreamModel;
                         depthSelect.setSelectedIndex(3);
-                        //changeModel(0);
+                        setModel(0);
 
                         layerLabel.setVisible(false);
                         layer1Select.setVisible(false);
@@ -689,6 +704,7 @@ public class OpenFileGUI extends JFrame {
                         setModelMenu.setEnabled(false);
                         modelLabelPanel.setVisible(false);
                         customPresetItem.setEnabled(false);
+
                         //store in settings
                          setProperty("advanced","false");
                     }
@@ -708,6 +724,7 @@ public class OpenFileGUI extends JFrame {
                     break;
                 case ("reset"):
                     setImage(baseImage);
+                    resetButton.setEnabled(false);
                     break;
                 case ("style"):
                 for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
@@ -728,6 +745,9 @@ public class OpenFileGUI extends JFrame {
                     }
                     styleSelect.setSelectedItem("Custom");
                     break;
+                case ("depth"):
+                    setProperty("depth", Integer.toString(depthSelect.getSelectedIndex()));
+                    break;
                 case ("createCustom"):
                     // model reminder
                     JPanel modelPanel = new JPanel();
@@ -743,12 +763,10 @@ public class OpenFileGUI extends JFrame {
                     JComboBox<String> layerList1 = new JComboBox<String>(layer1Options);
                     layerList1.setPreferredSize(new Dimension(45, 30));
                     layerList1.setFont(new Font("Sans", Font.BOLD, 14));
-                    layerList1.setSelectedIndex(0);
 
                     JComboBox<String> layerList2 = new JComboBox<String>(layer2Options);
                     layerList2.setPreferredSize(new Dimension(45, 30));
                     layerList2.setFont(new Font("Sans", Font.BOLD, 14));
-                    layerList2.setSelectedIndex(9);
                     
                     // name input
                     JLabel nameLabel = new JLabel("Name");
