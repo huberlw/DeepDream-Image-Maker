@@ -12,11 +12,13 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.*;
+import java.util.prefs.Preferences;
+
+import static java.lang.Integer.parseInt;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
@@ -45,6 +47,22 @@ public class OpenFileGUI extends JFrame {
     private DefaultComboBoxModel<String> depthOptions;
     private int dreamModel = 0;
     private JLabel dreamModelLabel;
+    Color lightMain;
+    Color lightAlt; 
+    Color darkMain;
+    Color darkAlt;
+    Color lightText;
+    Color darkText;
+    JMenu helpMenu;
+    JMenuBar menuBar;
+    JMenu fileMenu;
+    JMenu settingsMenu;
+    JPanel userOptions;
+    JCheckBoxMenuItem setColorMenu;
+    String color;
+    Boolean AdvancedOptions;
+    String userPresets;
+    int model;
     private int depthTemp;
     private int modelTemp;
     private JMenu setModelMenu;
@@ -54,6 +72,7 @@ public class OpenFileGUI extends JFrame {
     JRadioButtonMenuItem inceptionv3;
     JRadioButtonMenuItem xception;
     JRadioButtonMenuItem resnet50;
+    private String styleTemp;
 
 
     Properties prop = new Properties();
@@ -64,6 +83,12 @@ public class OpenFileGUI extends JFrame {
 
     private void setupGUI() {
         // create app window
+        darkMain = Color.decode("#0b1622");
+        darkAlt = Color.decode("#152232");
+        darkText = Color.decode("#d3d5f3");
+        lightMain = Color.decode("#edf1f5");;
+        lightAlt = Color.decode("#fafafa");;
+        lightText = Color.decode("#5C728A");
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
         appWindow.setMinimumSize(new Dimension(700, 700));
@@ -74,25 +99,28 @@ public class OpenFileGUI extends JFrame {
         appWindow.setIconImage(icon);
 
         // create menu bar
-        JMenuBar menuBar = new JMenuBar();
+        menuBar = new JMenuBar();
         menuBar.setBorderPainted(false); // disables white outline
-        menuBar.setBackground(Color.decode("#152232"));
         
         // file options
-        JMenu fileMenu = new JMenu("File");
+        fileMenu = new JMenu("File");
         fileMenu.setFont(new Font("Sans", Font.BOLD, 12));
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
         JMenuItem saveItem = new JMenuItem("Save as...");
-        fileMenu.setForeground(Color.decode("#d3d5f3"));
         fileMenu.add(openItem);
         fileMenu.add(urlItem);
         fileMenu.add(saveItem);
-
-        // advanced settings
-        JMenu settingsMenu = new JMenu ("Settings");
+        
+        // settings options
+        settingsMenu = new JMenu("Settings");
         settingsMenu.setFont(new Font("Sans", Font.BOLD, 12));
-        settingsMenu.setForeground(Color.decode("#d3d5f3"));
+
+        // color Selection
+        setColorMenu = new JCheckBoxMenuItem("Light Mode");
+        settingsMenu.add(setColorMenu);
+
+        // advanced
         advancedItem = new JCheckBoxMenuItem("Advanced Features");
         advancedItem.setUI(new KeepMenuOpen());
         settingsMenu.add(advancedItem);
@@ -123,10 +151,9 @@ public class OpenFileGUI extends JFrame {
         customPresetItem.setEnabled(false);
 
         // get help
-        JMenu helpMenu = new JMenu("Help");
+        helpMenu = new JMenu("Help");
         helpMenu.setFont(new Font("Sans", Font.BOLD, 12));
         JMenuItem infoItem = new JMenuItem("How This Works");
-        helpMenu.setForeground(Color.decode("#d3d5f3"));
         helpMenu.add(infoItem);
 
         JMenuItem layerDepthItem = new JMenuItem("Layers/Depth");
@@ -137,10 +164,8 @@ public class OpenFileGUI extends JFrame {
         // set model label
         modelLabelPanel = new JPanel(new BorderLayout());
         modelLabelPanel.setBorder(new EmptyBorder(0, 0, 0, 8));
-        modelLabelPanel.setBackground(Color.decode("#152232"));
         modelLabelPanel.setFont(new Font("Sans", Font.BOLD, 12));
         dreamModelLabel = new JLabel("Model: MobileNetV2");
-        dreamModelLabel.setForeground(Color.decode("#d3d5f3"));
         dreamModelLabel.setToolTipText("Current model being used. Please review \"Help.\" for more details.");
         modelLabelPanel.add(dreamModelLabel, BorderLayout.EAST);
         modelLabelPanel.setVisible(false);
@@ -157,20 +182,17 @@ public class OpenFileGUI extends JFrame {
         
         // create image space
         imageSpace = new JPanel(new BorderLayout());
-        imageSpace.setBackground(Color.decode("#0b1622"));
         appWindow.add(imageSpace, BorderLayout.CENTER);
         
         // --- USER OPTIONS ---
         // create options
-        JPanel userOptions = new JPanel();
-        userOptions.setBackground(Color.decode("#151f2e"));
+        userOptions = new JPanel();
         userOptions.add(Box.createVerticalStrut(60));
         appWindow.add(userOptions, BorderLayout.SOUTH);
 
         // style selection ui
         styleLabel = new JLabel("Filter");
         styleLabel.setFont(new Font("Sans", Font.PLAIN, 14));
-        styleLabel.setForeground(Color.decode("#d3d5f3"));
 
         // instantiate presets
         stylePresets = new ArrayList<ArrayList<String>>();
@@ -178,19 +200,19 @@ public class OpenFileGUI extends JFrame {
 
         // MobileNetV2 presets
         stylePresets.add(new ArrayList<>(Arrays.asList("Glitch", "Disease", "Electric")));
-        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 9, 6 }, { 8, 9 }, { 8, 1 }})));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{9, 6}, {8, 9}, {8, 1}})));
 
         // InceptionV3 presets
         stylePresets.add(new ArrayList<>(Arrays.asList("Scatter", "Manifest", "Bubbles")));
-        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 0, 2 }, { 4, 6 }, { 9, 10 }})));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{0, 2}, {4, 6}, {9, 10}})));
 
         // Xception presets
         stylePresets.add(new ArrayList<>(Arrays.asList("Vision", "Swarm", "Float")));
-        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 0, 1 }, { 4, 5 }, { 10, 11 }})));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{0, 1}, {4, 5}, {10, 11}})));
 
         // ResNet50 presets
         stylePresets.add(new ArrayList<>(Arrays.asList("Crust", "Squiggle", "Dazzle")));
-        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{ 1, 3 }, { 9, 10 }, { 14, 15 }})));
+        stylePresetLayers.add(new ArrayList<>(Arrays.asList(new int[][]{{1, 3}, {9, 10}, {14, 15}})));
 
         // prests gets current model
         String[] tmpPreset = new String[stylePresets.get(dreamModel).size()];
@@ -211,7 +233,6 @@ public class OpenFileGUI extends JFrame {
         // layer selection
         layerLabel = new JLabel("Layers");
         layerLabel.setFont(new Font("Sans", Font.PLAIN, 14));
-        layerLabel.setForeground(Color.decode("#d3d5f3"));
 
         layer1Select = new JComboBox<String>(layer1Options);
         layer1Select.setPreferredSize(new Dimension(45, 30));
@@ -224,12 +245,11 @@ public class OpenFileGUI extends JFrame {
         layer2Select.add(Box.createHorizontalStrut(4));
 
         // instantiate depth options
-        depthOptions = new DefaultComboBoxModel<String>(new String[]{ "1", "2", "3", "4", "5", "6" });
+        depthOptions = new DefaultComboBoxModel<String>(new String[]{"1", "2", "3", "4", "5", "6"});
         
         // depth selection
         depthLabel = new JLabel("Depth");
         depthLabel.setFont(new Font("Sans", Font.PLAIN, 14));
-        depthLabel.setForeground(Color.decode("#d3d5f3"));
 
         depthSelect = new JComboBox<String>(depthOptions);
         depthSelect.setPreferredSize(new Dimension(45, 30));
@@ -298,6 +318,8 @@ public class OpenFileGUI extends JFrame {
         depthSelect.addActionListener(new ButtonClickListener());
         customPresetItem.setActionCommand("createCustom");
         customPresetItem.addActionListener(new ButtonClickListener());
+        setColorMenu.setActionCommand("theme");
+        setColorMenu.addActionListener(new ButtonClickListener());
         mobilenetv2.addActionListener(e -> changeModel(0));
         inceptionv3.addActionListener(e -> changeModel(1));
         xception.addActionListener(e -> changeModel(2));
@@ -340,16 +362,39 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void loadProperties(){
-            //depth 
+            // temp files
+            styleTemp = getProperty("filter");
             depthTemp = Integer.parseInt(getProperty("depth"));
-            System.out.println(getProperty("depth"));
-            depthSelect.setSelectedIndex(depthTemp);
-            //model
+            
             int modelProperty = Integer.parseInt(getProperty("model"));
+        
+            // depth 
+            depthSelect.setSelectedIndex(depthTemp);
+            // model
             modelTemp = modelProperty;
             setModel(modelProperty);
-            //advanced
+            // filter
+            styleSelect.setSelectedItem(styleTemp);
+            setStyle();
+            // light mode
+            if (getProperty("theme").toString() == "0") setColorMenu.doClick();
+            else setTheme(0);
+
+            // advanced
             if (getProperty("advanced").contains("true"))advancedItem.doClick();
+            
+            
+            /*
+            Preferences user = Preferences.userRoot();
+            color = user.get("Color", "Dark");
+            AdvancedOptions = user.getBoolean("advancedToggle", false);
+            userPresets = user.get("Presets", "Glitch 9 6,Disease 8 9,Electric 8 1\n" +
+                                "Scatter 0 2,Manifest 4 6,Bubbles 9 10\n" +
+                                "Vision 0 1,Swarm 4 5,Float 10 11\n" +
+                             "Crust 1 3,Squiggle 9 10,Dazzle 14 15");
+            modelTemp = user.getInt("dreamModel", 0);
+            */
+            
 
     }
 
@@ -367,6 +412,75 @@ public class OpenFileGUI extends JFrame {
             case 3:
                 resnet50.doClick();
                 break;
+        }
+    }
+
+    private void setStyle() {
+        for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
+            if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
+                layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[0]);
+                layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[1]);
+                break;
+            }
+        }
+    setProperty("filter", styleSelect.getSelectedItem().toString());
+    }
+
+    private void setTheme(int theme) {
+        
+        switch (theme) {
+            case 0:
+                menuBar.setBackground(darkAlt);
+                imageSpace.setBackground(darkMain);
+                userOptions.setBackground(darkAlt);
+                modelLabelPanel.setBackground(darkAlt);
+                fileMenu.setForeground(darkText);
+                settingsMenu.setForeground(darkText);
+                depthLabel.setForeground(darkText);
+                layerLabel.setForeground(darkText);
+                styleLabel.setForeground(darkText);
+                dreamModelLabel.setForeground(darkText);
+                helpMenu.setForeground(darkText);
+
+                styleSelect.setBackground(darkMain);
+                styleSelect.setForeground(darkText);
+                layer1Select.setBackground(darkMain);
+                layer2Select.setBackground(darkMain);
+                layer1Select.setForeground(darkText);
+                layer2Select.setForeground(darkText);
+                depthSelect.setBackground(darkMain);
+                depthSelect.setForeground(darkText);
+                dreamButton.setBackground(darkMain);
+                dreamButton.setForeground(darkText);
+                resetButton.setBackground(darkMain);
+                resetButton.setForeground(darkText);
+                break;
+            case 1:
+                menuBar.setBackground(lightAlt);
+                imageSpace.setBackground(lightMain);
+                userOptions.setBackground(lightAlt);
+                modelLabelPanel.setBackground(lightAlt);
+                fileMenu.setForeground(lightText);
+                settingsMenu.setForeground(lightText);
+                depthLabel.setForeground(lightText);
+                layerLabel.setForeground(lightText);
+                styleLabel.setForeground(lightText);
+                dreamModelLabel.setForeground(lightText);
+                helpMenu.setForeground(lightText);
+
+                styleSelect.setBackground(lightMain);
+                styleSelect.setForeground(lightText);
+                layer1Select.setBackground(lightMain);
+                layer2Select.setBackground(lightMain);
+                layer1Select.setForeground(lightText);
+                layer2Select.setForeground(lightText);
+                depthSelect.setBackground(lightMain);
+                depthSelect.setForeground(lightText);
+                dreamButton.setBackground(lightMain);
+                dreamButton.setForeground(lightText);
+                resetButton.setBackground(lightMain);
+                resetButton.setForeground(lightText);
+            break;
         }
     }
 
@@ -435,7 +549,7 @@ public class OpenFileGUI extends JFrame {
                 break;
         }
 
-        styleSelect.setSelectedIndex(0);
+        // styleSelect.setSelectedIndex(0);
     }
 
     private int checkIfInteger(String output) {
@@ -660,11 +774,17 @@ public class OpenFileGUI extends JFrame {
                     }
                     break;
                 case ("save"):
-                    if (output != null) {
-                        saveImage(output);
-                    }else {
-                        break;
+                    if (output != null) saveImage(output);
+                    break;
+                case ("theme"):
+                    if (setColorMenu.isSelected()) {
+                        setTheme(1);
+                        setProperty("theme", "1");
+                    } else {
+                        setTheme(0);
+                        setProperty("theme", "0");
                     }
+                    break;
                 case ("advanced"):
                     if (advancedItem.isSelected()) {
                         depthSelect.setSelectedIndex(depthTemp);
@@ -727,13 +847,7 @@ public class OpenFileGUI extends JFrame {
                     resetButton.setEnabled(false);
                     break;
                 case ("style"):
-                for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
-                        if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
-                            layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[0]);
-                            layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[1]);
-                            break;
-                        }
-                    }
+                    setStyle();
                     break;
                 case ("layer"):
                     for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
