@@ -342,7 +342,7 @@ public class OpenFileGUI extends JFrame {
             if (getProperty("advanced").contains("true"))advancedItem.doClick();
             //model
             if (getProperty("model").contains("1")){
-                inceptionv3.setSelected(true);
+                mobilenetv2.setSelected(true);
                 changeModel(1);
             }
             if (getProperty("model").contains("1")){
