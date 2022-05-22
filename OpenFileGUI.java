@@ -793,8 +793,7 @@ class DreamProgress extends SwingWorker<Void, Void> {
         OpenFileGUI.dreamProgress.setForeground(Color.decode("#6382bf"));
         OpenFileGUI.dreamProgress.setBorderPainted(false);
 
-        OpenFileGUI.imageSpace.removeAll();
-        OpenFileGUI.imageSpace.add(OpenFileGUI.dreamProgress);
+        OpenFileGUI.imageSpace.add(OpenFileGUI.dreamProgress, BorderLayout.SOUTH);
         OpenFileGUI.imageSpace.revalidate();
 
         return null;
