@@ -16,6 +16,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.*;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
@@ -49,6 +50,13 @@ public class OpenFileGUI extends JFrame {
     private JMenu setModelMenu;
     private JPanel modelLabelPanel;
     private JMenuItem customPresetItem;
+    JRadioButtonMenuItem mobilenetv2;
+    JRadioButtonMenuItem inceptionv3;
+    JRadioButtonMenuItem xception;
+    JRadioButtonMenuItem resnet50;
+
+
+    Properties prop = new Properties();
 
     public static void main(String[] args) {     
         new OpenFileGUI().setupGUI();
@@ -94,10 +102,10 @@ public class OpenFileGUI extends JFrame {
         setModelMenu.setFont(new Font("Sans", Font.BOLD, 12));
         setModelMenu.setForeground(Color.BLACK);
         ButtonGroup modelGroup = new ButtonGroup();
-        JRadioButtonMenuItem mobilenetv2 = new JRadioButtonMenuItem("MobileNetV2", true);
-        JRadioButtonMenuItem inceptionv3 = new JRadioButtonMenuItem("InceptionV3");
-        JRadioButtonMenuItem xception = new JRadioButtonMenuItem("Xception");
-        JRadioButtonMenuItem resnet50 = new JRadioButtonMenuItem("ResNet50");
+        mobilenetv2 = new JRadioButtonMenuItem("MobileNetV2", true);
+        inceptionv3 = new JRadioButtonMenuItem("InceptionV3");
+        xception = new JRadioButtonMenuItem("Xception");
+        resnet50 = new JRadioButtonMenuItem("ResNet50");
         modelGroup.add(mobilenetv2);
         modelGroup.add(inceptionv3);
         modelGroup.add(xception);
@@ -293,6 +301,9 @@ public class OpenFileGUI extends JFrame {
         xception.addActionListener(e -> changeModel(2));
         resnet50.addActionListener(e -> changeModel(3));
 
+        //load settings
+        loadProperties();
+
         // end program when window closes
         appWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event) {
@@ -300,6 +311,55 @@ public class OpenFileGUI extends JFrame {
             }        
          }); 
     }
+
+
+    private void setProperty(String key, String value){
+        try (OutputStream output = new FileOutputStream("settings.properties")) {
+            // set the properties value
+            prop.setProperty(key, value);
+            // save properties to project root folder
+            prop.store(output, null);        
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+    private String getProperty(String key){
+        try (InputStream input = new FileInputStream("settings.properties")) {
+            // load a properties file
+            prop.load(input);
+            // get the property value and print it out
+            return prop.getProperty(key);
+
+        } catch (IOException io) {
+            io.printStackTrace();
+            return "null";
+        }
+    }
+
+    private void loadProperties(){
+            //advanced
+            if (getProperty("advanced").contains("true"))advancedItem.doClick();
+            //model
+            if (getProperty("model").contains("1")){
+                inceptionv3.setSelected(true);
+                changeModel(1);
+            }
+            if (getProperty("model").contains("1")){
+                inceptionv3.setSelected(true);
+                changeModel(1);
+            }
+            if (getProperty("model").contains("2")){
+                xception.setSelected(true);
+                changeModel(2);
+            }
+            if (getProperty("model").contains("3")){
+                resnet50.setSelected(true);
+                changeModel(3);
+            }
+            return;
+    }
+
 
     private void changeModel(int model) {
         // get presets for model
@@ -317,10 +377,13 @@ public class OpenFileGUI extends JFrame {
         // set dream model
         dreamModel = model;
         
+        //remember selection
+        setProperty("model",Integer.toString(model));
         // update layers
         switch (dreamModel) {
             case 0:
                 dreamModelLabel.setText("Model: MobileNetV2");
+
                 while (layer1Options.getSize() != 10) {
                     layer1Options.removeElementAt(layer1Options.getSize() - 1);
                     layer2Options.removeElementAt(layer2Options.getSize() - 1);
@@ -592,7 +655,7 @@ public class OpenFileGUI extends JFrame {
                 case ("advanced"):
                     if (advancedItem.isSelected()) {
                         depthSelect.setSelectedIndex(depthTemp);
-                        changeModel(modelTemp);
+                        //changeModel(modelTemp);
 
                         layerLabel.setVisible(true);
                         layer1Select.setVisible(true);
@@ -603,11 +666,14 @@ public class OpenFileGUI extends JFrame {
                         setModelMenu.setEnabled(true);
                         modelLabelPanel.setVisible(true);
                         customPresetItem.setEnabled(true);
+                        styleSelect.addItem("Custom");
+                        //store in settings
+                        setProperty("advanced","true");
                     } else {
                         depthTemp = depthSelect.getSelectedIndex();
                         modelTemp = dreamModel;
                         depthSelect.setSelectedIndex(3);
-                        changeModel(0);
+                        //changeModel(0);
 
                         layerLabel.setVisible(false);
                         layer1Select.setVisible(false);
@@ -623,6 +689,8 @@ public class OpenFileGUI extends JFrame {
                         setModelMenu.setEnabled(false);
                         modelLabelPanel.setVisible(false);
                         customPresetItem.setEnabled(false);
+                        //store in settings
+                         setProperty("advanced","false");
                     }
                     break;
                 case ("infoItem"):
