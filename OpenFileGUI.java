@@ -44,7 +44,7 @@ public class OpenFileGUI extends JFrame {
     private DefaultComboBoxModel<String> depthOptions;
     private int dreamModel = 0;
     private JLabel dreamModelLabel;
-    private int depthTemp;
+    private int depthTemp = 3;
     private int modelTemp;
     private JMenu setModelMenu;
     private JPanel modelLabelPanel;
