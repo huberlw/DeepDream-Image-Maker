@@ -16,9 +16,6 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.*;
-import java.util.prefs.Preferences;
-
-import static java.lang.Integer.parseInt;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
@@ -237,11 +234,9 @@ public class OpenFileGUI extends JFrame {
         layer1Select = new JComboBox<String>(layer1Options);
         layer1Select.setPreferredSize(new Dimension(45, 30));
         layer1Select.setFont(new Font("Sans", Font.BOLD, 14));
-        layer1Select.setSelectedIndex(9);
         layer2Select = new JComboBox<String>(layer2Options);
         layer2Select.setPreferredSize(new Dimension(45, 30));
         layer2Select.setFont(new Font("Sans", Font.BOLD, 14));
-        layer2Select.setSelectedIndex(6);
         layer2Select.add(Box.createHorizontalStrut(4));
 
         // instantiate depth options
@@ -254,7 +249,6 @@ public class OpenFileGUI extends JFrame {
         depthSelect = new JComboBox<String>(depthOptions);
         depthSelect.setPreferredSize(new Dimension(45, 30));
         depthSelect.setFont(new Font("Sans", Font.BOLD, 14));
-        depthSelect.setSelectedIndex(3);
         
         // add all options
         userOptions.add(layerLabel);
@@ -362,9 +356,11 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void loadProperties(){
+        
             // temp files
-            styleTemp = getProperty("filter");
+            styleTemp = getProperty("filter").toString();
             depthTemp = Integer.parseInt(getProperty("depth"));
+            String[] layersTemp = getProperty("layers").toString().split(",");
             
             int modelProperty = Integer.parseInt(getProperty("model"));
         
@@ -373,29 +369,25 @@ public class OpenFileGUI extends JFrame {
             // model
             modelTemp = modelProperty;
             setModel(modelProperty);
-            // filter
-            styleSelect.setSelectedItem(styleTemp);
-            setStyle();
-            // light mode
-            if (getProperty("theme").toString() == "0") setColorMenu.doClick();
-            else setTheme(0);
 
             // advanced
             if (getProperty("advanced").contains("true"))advancedItem.doClick();
-            
-            
-            /*
-            Preferences user = Preferences.userRoot();
-            color = user.get("Color", "Dark");
-            AdvancedOptions = user.getBoolean("advancedToggle", false);
-            userPresets = user.get("Presets", "Glitch 9 6,Disease 8 9,Electric 8 1\n" +
-                                "Scatter 0 2,Manifest 4 6,Bubbles 9 10\n" +
-                                "Vision 0 1,Swarm 4 5,Float 10 11\n" +
-                             "Crust 1 3,Squiggle 9 10,Dazzle 14 15");
-            modelTemp = user.getInt("dreamModel", 0);
-            */
-            
 
+            // filter and layers
+            if (styleTemp.equals("Custom")) {
+                System.out.println("YES");
+                styleSelect.setSelectedIndex(3);
+                layer1Select.setSelectedIndex(Integer.parseInt(layersTemp[0]));
+                layer2Select.setSelectedIndex(Integer.parseInt(layersTemp[1]));
+                System.out.println(styleSelect.getSelectedItem());
+            } else {
+                styleSelect.setSelectedItem(styleTemp);
+                setStyle();
+            }
+            
+            // light mode
+            if (getProperty("theme").toString().equals("1")) setColorMenu.doClick();
+            else setTheme(0);
     }
 
     private void setModel(int num) {
@@ -415,15 +407,25 @@ public class OpenFileGUI extends JFrame {
         }
     }
 
+    private void saveLayers() {
+        int[] layerProperty = new int[2];
+        layerProperty[0] = layer1Select.getSelectedIndex();
+        layerProperty[1] = layer2Select.getSelectedIndex();
+        setProperty("layers", layerProperty[0] + "," + layerProperty[1]);
+    }
+
     private void setStyle() {
-        for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
-            if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
-                layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[0]);
-                layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[1]);
-                break;
+        if(!getProperty("filter").toString().equals("custom")) {
+            for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
+                if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
+                    layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[0]);
+                    layer2Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[1]);
+                    break;
+                }
             }
+            saveLayers();
         }
-    setProperty("filter", styleSelect.getSelectedItem().toString());
+        setProperty("filter", styleSelect.getSelectedItem().toString());
     }
 
     private void setTheme(int theme) {
@@ -848,6 +850,7 @@ public class OpenFileGUI extends JFrame {
                     break;
                 case ("style"):
                     setStyle();
+                    
                     break;
                 case ("layer"):
                     for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
@@ -858,6 +861,10 @@ public class OpenFileGUI extends JFrame {
                         }
                     }
                     styleSelect.setSelectedItem("Custom");
+                    int[] layerProperty = new int[2];
+                    layerProperty[0] = layer1Select.getSelectedIndex();
+                    layerProperty[1] = layer2Select.getSelectedIndex();
+                    setProperty("layers", layerProperty[0] + "," + layerProperty[1]);
                     break;
                 case ("depth"):
                     setProperty("depth", Integer.toString(depthSelect.getSelectedIndex()));
