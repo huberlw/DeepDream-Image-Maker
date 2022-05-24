@@ -1,21 +1,22 @@
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.lang.Math;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.*;
+import java.util.prefs.Preferences;
 
 public class OpenFileGUI extends JFrame {
     private String baseImage;
@@ -56,7 +57,7 @@ public class OpenFileGUI extends JFrame {
     JMenu settingsMenu;
     JPanel userOptions;
     JCheckBoxMenuItem setColorMenu;
-    String color;
+    int color;
     Boolean AdvancedOptions;
     String userPresets;
     int model;
@@ -70,11 +71,11 @@ public class OpenFileGUI extends JFrame {
     JRadioButtonMenuItem xception;
     JRadioButtonMenuItem resnet50;
     private String styleTemp;
+    Preferences user;
+    int[] layers = new int[2];
 
 
-    Properties prop = new Properties();
-
-    public static void main(String[] args) {     
+    public static void main(String[] args) {
         new OpenFileGUI().setupGUI();
     }
 
@@ -320,28 +321,67 @@ public class OpenFileGUI extends JFrame {
         resnet50.addActionListener(e -> changeModel(3));
 
         //load settings
-        loadProperties();
+        loadPreferences();
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                user.put("Filters", userPresets);
+                user.putBoolean("advancedToggle", AdvancedOptions);
+                user.putInt("Color", color);
+                user.putInt("model", modelTemp);
+                user.putInt("depth", depthSelect.getSelectedIndex());
+                user.put("filterSelection", styleTemp);
+                user.putInt("layer1", layers[0]);
+                user.putInt("layer2", layers[1]);
 
+            }
+        }));
         // end program when window closes
         appWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event) {
-               System.exit(0);
-            }        
-         }); 
+                System.exit(0);
+            }
+        });
     }
 
 
-    private void setProperty(String key, String value){
-        try (OutputStream output = new FileOutputStream("settings.properties")) {
-            // set the properties value
-            prop.setProperty(key, value);
-            // save properties to project root folder
-            prop.store(output, null);        
-        } catch (IOException io) {
-            io.printStackTrace();
+    /*    private void setProperty(String key, String value){
+            try (OutputStream output = new FileOutputStream("settings.properties")) {
+                // set the properties value
+                prop.setProperty(key, value);
+                // save properties to project root folder
+                prop.store(output, null);
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
         }
-    }
+        */
+    private void setPresets() {
+        String[] models = userPresets.split("\n");
+        ArrayList<ArrayList<String>> tempPresets = new ArrayList<>();
+        ArrayList<ArrayList<int[]>> tempPresetsLayers = new ArrayList<>();
+        String[] line;
+        String[] presets;
+        ArrayList<String> temp = new ArrayList<>();
+        ArrayList<int[]> tempLayers = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            temp.clear();
+            tempLayers.clear();
+            line = models[i].split(",");
+            for (int j = 0; j < line.length; j += 1) {
+                presets = line[j].split(" ");
+                temp.add(presets[0]);
+                int[] tempArray = new int[]{Integer.parseInt(presets[1]), Integer.parseInt(presets[2])};
+                tempLayers.add(tempArray);
 
+            }
+            tempPresets.add((ArrayList<String>) temp.clone());
+            tempPresetsLayers.add((ArrayList<int[]>) tempLayers.clone());
+        }
+        stylePresets = tempPresets;
+        stylePresetLayers = tempPresetsLayers;
+    }
+    /*
     private String getProperty(String key){
         try (InputStream input = new FileInputStream("settings.properties")) {
             // load a properties file
@@ -354,40 +394,49 @@ public class OpenFileGUI extends JFrame {
             return "null";
         }
     }
+    */
 
-    private void loadProperties(){
-        
-            // temp files
-            styleTemp = getProperty("filter").toString();
-            depthTemp = Integer.parseInt(getProperty("depth"));
-            String[] layersTemp = getProperty("layers").toString().split(",");
-            
-            int modelProperty = Integer.parseInt(getProperty("model"));
-        
-            // depth 
-            depthSelect.setSelectedIndex(depthTemp);
-            // model
-            modelTemp = modelProperty;
-            setModel(modelProperty);
 
-            // advanced
-            if (getProperty("advanced").contains("true"))advancedItem.doClick();
+    private void loadPreferences() {
+        user = Preferences.userRoot();
+        // temp files
+        userPresets = user.get("Presets", "Glitch 9 6,Disease 8 9,Electric 8 1\n" +
+                "Scatter 0 2,Manifest 4 6,Bubbles 9 10\n" +
+                "Vision 0 1,Swarm 4 5,Float 10 11\n" +
+                "Crust 1 3,Squiggle 9 10,Dazzle 14 15");
+        depthTemp = user.getInt("depth", 0);
 
-            // filter and layers
+        setPresets();
+        // depth
+        depthSelect.setSelectedIndex(depthTemp);
+        // model
+        setModel(user.getInt("model", 0));
+
+        // filter selection
+
+        // advanced
+        if (user.getBoolean("advancedToggle", false) == true) advancedItem.doClick();
+        else AdvancedOptions = false;
+            /*
+            layers[0] = user.getInt("layer1", 1);
+            layers[1] = user.getInt("layer2", 1);
+            styleTemp = user.get("filterSelection", presets.getElementAt(0));
             if (styleTemp.equals("Custom")) {
                 System.out.println("YES");
                 styleSelect.setSelectedIndex(3);
-                layer1Select.setSelectedIndex(Integer.parseInt(layersTemp[0]));
-                layer2Select.setSelectedIndex(Integer.parseInt(layersTemp[1]));
+                layer1Select.setSelectedIndex(layers[0]);
+                layer2Select.setSelectedIndex(layers[1]);
                 System.out.println(styleSelect.getSelectedItem());
             } else {
                 styleSelect.setSelectedItem(styleTemp);
                 setStyle();
             }
-            
-            // light mode
-            if (getProperty("theme").toString().equals("1")) setColorMenu.doClick();
-            else setTheme(0);
+
+             */
+
+        // light mode
+        if (user.getInt("Color", 0) == 1) setColorMenu.doClick();
+        else setTheme(0);
     }
 
     private void setModel(int num) {
@@ -407,15 +456,10 @@ public class OpenFileGUI extends JFrame {
         }
     }
 
-    private void saveLayers() {
-        int[] layerProperty = new int[2];
-        layerProperty[0] = layer1Select.getSelectedIndex();
-        layerProperty[1] = layer2Select.getSelectedIndex();
-        setProperty("layers", layerProperty[0] + "," + layerProperty[1]);
-    }
+
 
     private void setStyle() {
-        if(!getProperty("filter").toString().equals("custom")) {
+        if (!styleSelect.getSelectedItem().equals("Custom")) {
             for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
                 if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
                     layer1Select.setSelectedIndex(stylePresetLayers.get(dreamModel).get(i)[0]);
@@ -423,10 +467,10 @@ public class OpenFileGUI extends JFrame {
                     break;
                 }
             }
-            saveLayers();
         }
-        setProperty("filter", styleSelect.getSelectedItem().toString());
+        styleTemp = (String) styleSelect.getSelectedItem();
     }
+
 
     private void setTheme(int theme) {
         
@@ -503,9 +547,9 @@ public class OpenFileGUI extends JFrame {
 
         // set dream model
         dreamModel = model;
+        modelTemp = model;
         
         //remember selection
-        setProperty("model",Integer.toString(model));
         // update layers
         switch (dreamModel) {
             case 0:
@@ -781,10 +825,8 @@ public class OpenFileGUI extends JFrame {
                 case ("theme"):
                     if (setColorMenu.isSelected()) {
                         setTheme(1);
-                        setProperty("theme", "1");
                     } else {
                         setTheme(0);
-                        setProperty("theme", "0");
                     }
                     break;
                 case ("advanced"):
@@ -805,7 +847,7 @@ public class OpenFileGUI extends JFrame {
                         styleSelect.addItem("Custom");
 
                         //store in settings
-                        setProperty("advanced","true");
+                        AdvancedOptions = true;
                     } else {
                         depthTemp = depthSelect.getSelectedIndex();
                         modelTemp = dreamModel;
@@ -826,9 +868,8 @@ public class OpenFileGUI extends JFrame {
                         setModelMenu.setEnabled(false);
                         modelLabelPanel.setVisible(false);
                         customPresetItem.setEnabled(false);
+                        AdvancedOptions = true;
 
-                        //store in settings
-                         setProperty("advanced","false");
                     }
                     break;
                 case ("infoItem"):
@@ -853,21 +894,23 @@ public class OpenFileGUI extends JFrame {
                     
                     break;
                 case ("layer"):
+
                     for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
                         if (layer1Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[0]
-                            && layer2Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[1]) {
-                                styleSelect.setSelectedItem(stylePresets.get(dreamModel).get(i));
-                                break commandParser;
+                                && layer2Select.getSelectedIndex() == stylePresetLayers.get(dreamModel).get(i)[1]) {
+                            styleSelect.setSelectedItem(stylePresets.get(dreamModel).get(i));
+                            break commandParser;
                         }
                     }
                     styleSelect.setSelectedItem("Custom");
-                    int[] layerProperty = new int[2];
-                    layerProperty[0] = layer1Select.getSelectedIndex();
-                    layerProperty[1] = layer2Select.getSelectedIndex();
-                    setProperty("layers", layerProperty[0] + "," + layerProperty[1]);
+                    layers = new int[2];
+                    layers[0] = layer1Select.getSelectedIndex();
+                    layers[1] = layer2Select.getSelectedIndex();
+
+
                     break;
                 case ("depth"):
-                    setProperty("depth", Integer.toString(depthSelect.getSelectedIndex()));
+                    //setProperty("depth", Integer.toString(depthSelect.getSelectedIndex()));
                     break;
                 case ("createCustom"):
                     // model reminder
