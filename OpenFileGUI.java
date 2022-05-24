@@ -43,11 +43,11 @@ public class OpenFileGUI extends JFrame {
     private DefaultComboBoxModel<String> layer1Options;
     private DefaultComboBoxModel<String> layer2Options;
     private DefaultComboBoxModel<String> depthOptions;
-    private int dreamModel = 0;
-    private JLabel dreamModelLabel;
-    private Color mainColor;
-    private Color altColor;
-    private Color textColor;
+    public static int dreamModel = 0;
+    public static JLabel dreamModelLabel;
+    public static Color mainColor;
+    public static Color altColor;
+    public static Color textColor;
     JMenu helpMenu;
     JMenuBar menuBar;
     JMenu fileMenu;
@@ -68,7 +68,9 @@ public class OpenFileGUI extends JFrame {
     JRadioButtonMenuItem inceptionv3;
     JRadioButtonMenuItem xception;
     JRadioButtonMenuItem resnet50;
-    private String styleTemp;
+    private String stylePref;
+    private String styleSave;
+    private int[] layersSave;
     Preferences user;
     int[] layers = new int[2];
 
@@ -94,8 +96,12 @@ public class OpenFileGUI extends JFrame {
         Image icon = Toolkit.getDefaultToolkit().getImage("icons\\frog.png");
         appWindow.setIconImage(icon);
 
-        // set colors
+        // get style, layers, and colors
         user = Preferences.userRoot();
+        styleSave = user.get("filter", null);
+        layersSave = new int[2];
+        layersSave[0] = user.getInt("layer1", 0);
+        layersSave[1] = user.getInt("layer2", 0);
         if (user.getBoolean("lightTheme", false) == true) lightMode = true;
         else lightMode = false;
         setColors();
@@ -358,10 +364,9 @@ public class OpenFileGUI extends JFrame {
                 user.put("Filters", userPresets);
                 user.putBoolean("advancedToggle", AdvancedOptions);
                 user.putBoolean("lightTheme",lightMode);
-                user.putInt("Color", color);
                 user.putInt("model", modelTemp);
                 user.putInt("depth", depthSelect.getSelectedIndex());
-                user.put("filterSelection", styleTemp);
+                user.put("filter", stylePref);
                 user.putInt("layer1", layers[0]);
                 user.putInt("layer2", layers[1]);
 
@@ -420,18 +425,22 @@ public class OpenFileGUI extends JFrame {
                 "Vision 0 1,Swarm 4 5,Float 10 11\n" +
                 "Crust 1 3,Squiggle 9 10,Dazzle 14 15");
         depthTemp = user.getInt("depth", 0);
-
         setPresets();
-        // depth
-        depthSelect.setSelectedIndex(depthTemp);
-        // model
-        setModel(user.getInt("model", 0));
-
-        // filter selection
 
         // advanced
         if (user.getBoolean("advancedToggle", false) == true) advancedItem.doClick();
         else AdvancedOptions = false;
+        
+        // depth
+        depthSelect.setSelectedIndex(depthTemp);
+        // model
+        setModel(user.getInt("model", 0));
+        // style
+        styleSelect.setSelectedItem(styleSave);
+        setStyle();
+        // layers
+        layer1Select.setSelectedIndex(layersSave[0]);
+        layer2Select.setSelectedIndex(layersSave[1]);
 
         // light mode tick
         if (user.getBoolean("lightTheme", false) == true) setColorMenu.setSelected(true);
@@ -479,6 +488,7 @@ public class OpenFileGUI extends JFrame {
         dreamButton.setForeground(textColor);
         resetButton.setBackground(mainColor);
         resetButton.setForeground(textColor);
+        if(dreamProgress != null) dreamProgress.setBackground(mainColor);
     }
 
     private void setStyle() {
@@ -491,7 +501,7 @@ public class OpenFileGUI extends JFrame {
                 }
             }
         }
-        styleTemp = (String) styleSelect.getSelectedItem();
+        stylePref = styleSelect.getSelectedItem().toString();
     }
 
 
@@ -802,7 +812,7 @@ public class OpenFileGUI extends JFrame {
                     break;
                 case ("advanced"):
                     if (advancedItem.isSelected()) {
-                        depthSelect.setSelectedIndex(depthTemp);
+                        depthSelect.setSelectedIndex(3);
                         if(modelTemp != dreamModel) setModel(modelTemp);
 
                         layerLabel.setVisible(true);
@@ -820,8 +830,6 @@ public class OpenFileGUI extends JFrame {
                         //store in settings
                         AdvancedOptions = true;
                     } else {
-                        depthTemp = depthSelect.getSelectedIndex();
-                        modelTemp = dreamModel;
                         depthSelect.setSelectedIndex(3);
                         setModel(0);
 
@@ -1047,7 +1055,7 @@ class DreamProgress extends SwingWorker<Void, Void> {
         OpenFileGUI.dreamProgress.setString("Dreamifying image... 0%");
         OpenFileGUI.dreamProgress.setFont(new Font("Sans", Font.BOLD, 20));
         
-        OpenFileGUI.dreamProgress.setBackground(Color.decode("#0b1622"));
+        OpenFileGUI.dreamProgress.setBackground(OpenFileGUI.mainColor);
         OpenFileGUI.dreamProgress.setForeground(Color.decode("#6382bf"));
         OpenFileGUI.dreamProgress.setBorderPainted(false);
 
