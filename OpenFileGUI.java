@@ -59,6 +59,7 @@ public class OpenFileGUI extends JFrame {
     JCheckBoxMenuItem setColorMenu;
     int color;
     Boolean AdvancedOptions;
+    Boolean lightMode;
     String userPresets;
     int model;
     private int depthTemp;
@@ -322,11 +323,13 @@ public class OpenFileGUI extends JFrame {
 
         //load settings
         loadPreferences();
+        //run this as program closes
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
                 user.put("Filters", userPresets);
                 user.putBoolean("advancedToggle", AdvancedOptions);
+                user.putBoolean("lightTheme",lightMode);
                 user.putInt("Color", color);
                 user.putInt("model", modelTemp);
                 user.putInt("depth", depthSelect.getSelectedIndex());
@@ -417,6 +420,14 @@ public class OpenFileGUI extends JFrame {
         // advanced
         if (user.getBoolean("advancedToggle", false) == true) advancedItem.doClick();
         else AdvancedOptions = false;
+        //light mode
+        if (user.getBoolean("lightTheme", false) == true) setColorMenu.doClick();
+        //dark mode
+        else setTheme(0);
+
+
+
+        
             /*
             layers[0] = user.getInt("layer1", 1);
             layers[1] = user.getInt("layer2", 1);
@@ -433,10 +444,6 @@ public class OpenFileGUI extends JFrame {
             }
 
              */
-
-        // light mode
-        if (user.getInt("Color", 0) == 1) setColorMenu.doClick();
-        else setTheme(0);
     }
 
     private void setModel(int num) {
@@ -825,8 +832,12 @@ public class OpenFileGUI extends JFrame {
                 case ("theme"):
                     if (setColorMenu.isSelected()) {
                         setTheme(1);
+                        //store in settings
+                        lightMode = true;
                     } else {
                         setTheme(0);
+                        //store in settings
+                        lightMode = false;
                     }
                     break;
                 case ("advanced"):
@@ -868,7 +879,7 @@ public class OpenFileGUI extends JFrame {
                         setModelMenu.setEnabled(false);
                         modelLabelPanel.setVisible(false);
                         customPresetItem.setEnabled(false);
-                        AdvancedOptions = true;
+                        AdvancedOptions = false;
 
                     }
                     break;
