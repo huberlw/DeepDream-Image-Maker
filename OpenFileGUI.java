@@ -48,12 +48,15 @@ public class OpenFileGUI extends JFrame {
     public static Color mainColor;
     public static Color altColor;
     public static Color textColor;
+    public static Color accentColor;
+    public static Color altTextColor;
+    public static Color barColor;
     JMenu helpMenu;
     JMenuBar menuBar;
     JMenu fileMenu;
     JMenu settingsMenu;
     JPanel userOptions;
-    JCheckBoxMenuItem setColorMenu;
+    JMenu setColorMenu;
     int color;
     Boolean AdvancedOptions;
     Boolean lightMode;
@@ -68,11 +71,14 @@ public class OpenFileGUI extends JFrame {
     JRadioButtonMenuItem inceptionv3;
     JRadioButtonMenuItem xception;
     JRadioButtonMenuItem resnet50;
-    private String stylePref;
     private String styleSave;
     private int[] layersSave;
     Preferences user;
     int[] layers = new int[2];
+    JRadioButtonMenuItem darkTheme;
+    JRadioButtonMenuItem lightTheme;
+    JRadioButtonMenuItem anilistTheme;
+    int userTheme;
 
 
     public static void main(String[] args) {
@@ -81,12 +87,6 @@ public class OpenFileGUI extends JFrame {
 
     private void setupGUI() {
         // create app window
-        mainColor = Color.decode("#0b1622");
-        altColor = Color.decode("#152232");
-        textColor = Color.decode("#d3d5f3");
-        mainColor = Color.decode("#edf1f5");;
-        altColor = Color.decode("#fafafa");;
-        textColor = Color.decode("#5C728A");
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
         appWindow.setMinimumSize(new Dimension(700, 700));
@@ -102,9 +102,8 @@ public class OpenFileGUI extends JFrame {
         layersSave = new int[2];
         layersSave[0] = user.getInt("layer1", 0);
         layersSave[1] = user.getInt("layer2", 0);
-        if (user.getBoolean("lightTheme", false) == true) lightMode = true;
-        else lightMode = false;
-        setColors();
+        userTheme = user.getInt("theme", 0);
+        setColors(userTheme);
         
         // create menu bar
         menuBar = new JMenuBar();
@@ -129,7 +128,19 @@ public class OpenFileGUI extends JFrame {
         settingsMenu.setFont(new Font("Sans", Font.BOLD, 12));
 
         // color Selection
-        setColorMenu = new JCheckBoxMenuItem("Light Mode");
+        setColorMenu = new JMenu("Theme");
+        setColorMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        setColorMenu.setForeground(Color.BLACK);
+        ButtonGroup colorGroup = new ButtonGroup();
+        darkTheme = new JRadioButtonMenuItem("Dark");
+        lightTheme = new JRadioButtonMenuItem("Light");
+        anilistTheme = new JRadioButtonMenuItem("AniList");
+        colorGroup.add(darkTheme);
+        colorGroup.add(lightTheme);
+        colorGroup.add(anilistTheme);
+        setColorMenu.add(darkTheme);
+        setColorMenu.add(lightTheme);
+        setColorMenu.add(anilistTheme);
         settingsMenu.add(setColorMenu);
 
         // advanced
@@ -239,8 +250,8 @@ public class OpenFileGUI extends JFrame {
         
         // style selection
         styleSelect = new JComboBox<String>(presets);
-        styleSelect.setBackground(mainColor);
-        styleSelect.setForeground(textColor);
+        styleSelect.setBackground(accentColor);
+        styleSelect.setForeground(altTextColor);
         styleSelect.setPreferredSize(new Dimension(90, 30));
         styleSelect.setFont(new Font("Sans", Font.BOLD, 14));
         userOptions.add(styleLabel);
@@ -262,10 +273,10 @@ public class OpenFileGUI extends JFrame {
         layer2Select.setPreferredSize(new Dimension(45, 30));
         layer2Select.setFont(new Font("Sans", Font.BOLD, 14));
         layer2Select.add(Box.createHorizontalStrut(4));
-        layer1Select.setBackground(mainColor);
-        layer2Select.setBackground(mainColor);
-        layer1Select.setForeground(textColor);
-        layer2Select.setForeground(textColor);
+        layer1Select.setBackground(accentColor);
+        layer2Select.setBackground(accentColor);
+        layer1Select.setForeground(altTextColor);
+        layer2Select.setForeground(altTextColor);
 
         // instantiate depth options
         depthOptions = new DefaultComboBoxModel<String>(new String[]{"1", "2", "3", "4", "5", "6"});
@@ -277,8 +288,8 @@ public class OpenFileGUI extends JFrame {
         depthLabel.setFont(new Font("Sans", Font.PLAIN, 14));
 
         depthSelect = new JComboBox<String>(depthOptions);
-        depthSelect.setBackground(mainColor);
-        depthSelect.setForeground(textColor);
+        depthSelect.setBackground(accentColor);
+        depthSelect.setForeground(altTextColor);
         depthSelect.setPreferredSize(new Dimension(45, 30));
         depthSelect.setFont(new Font("Sans", Font.BOLD, 14));
         
@@ -297,8 +308,8 @@ public class OpenFileGUI extends JFrame {
         // dreamify button
         userOptions.add(Box.createHorizontalStrut(4));
         dreamButton = new JButton("Dreamify");
-        dreamButton.setBackground(mainColor);
-        dreamButton.setForeground(textColor);
+        dreamButton.setBackground(accentColor);
+        dreamButton.setForeground(altTextColor);
         dreamButton.setPreferredSize(new Dimension(100, 30));
         dreamButton.setFont(new Font("Sans", Font.BOLD, 14));
         dreamButton.setEnabled(false);
@@ -308,8 +319,8 @@ public class OpenFileGUI extends JFrame {
         // reset button
         userOptions.add(Box.createHorizontalStrut(4));
         resetButton = new JButton("Reset");
-        resetButton.setBackground(mainColor);
-        resetButton.setForeground(textColor);
+        resetButton.setBackground(accentColor);
+        resetButton.setForeground(altTextColor);
         resetButton.setPreferredSize(new Dimension(100, 30));
         resetButton.setFont(new Font("Sans", Font.BOLD, 14));
         resetButton.setEnabled(false);
@@ -350,10 +361,14 @@ public class OpenFileGUI extends JFrame {
         customPresetItem.addActionListener(new ButtonClickListener());
         setColorMenu.setActionCommand("theme");
         setColorMenu.addActionListener(new ButtonClickListener());
+
         mobilenetv2.addActionListener(e -> changeModel(0));
         inceptionv3.addActionListener(e -> changeModel(1));
         xception.addActionListener(e -> changeModel(2));
         resnet50.addActionListener(e -> changeModel(3));
+        darkTheme.addActionListener(e -> setTheme(0));
+        lightTheme.addActionListener(e -> setTheme(1));
+        anilistTheme.addActionListener(e -> setTheme(2));
 
         //load settings
         loadPreferences();
@@ -363,12 +378,12 @@ public class OpenFileGUI extends JFrame {
             public void run() {
                 user.put("Filters", userPresets);
                 user.putBoolean("advancedToggle", AdvancedOptions);
-                user.putBoolean("lightTheme",lightMode);
+                user.putInt("theme",userTheme);
                 user.putInt("model", modelTemp);
                 user.putInt("depth", depthSelect.getSelectedIndex());
-                user.put("filter", stylePref);
-                user.putInt("layer1", layers[0]);
-                user.putInt("layer2", layers[1]);
+                user.put("filter", styleSelect.getSelectedItem().toString());
+                user.putInt("layer1", layer1Select.getSelectedIndex());
+                user.putInt("layer2", layer2Select.getSelectedIndex());
 
             }
         }));
@@ -406,18 +421,6 @@ public class OpenFileGUI extends JFrame {
         stylePresetLayers = tempPresetsLayers;
     }
 
-    private void setColors(){
-        if (lightMode) {
-            mainColor = Color.decode("#edf1f5");
-            altColor = Color.decode("#fafafa");
-            textColor = Color.decode("#5C728A");
-        } else {
-            mainColor = Color.decode("#0b1622");
-            altColor = Color.decode("#152232");
-            textColor = Color.decode("#d3d5f3");
-        }
-    }
-
     private void loadPreferences() {
         // temp files
         userPresets = user.get("Presets", "Glitch 9 6,Disease 8 9,Electric 8 1\n" +
@@ -442,8 +445,9 @@ public class OpenFileGUI extends JFrame {
         layer1Select.setSelectedIndex(layersSave[0]);
         layer2Select.setSelectedIndex(layersSave[1]);
 
-        // light mode tick
-        if (user.getBoolean("lightTheme", false) == true) setColorMenu.setSelected(true);
+        // theme
+        userTheme = user.getInt("theme", 0);
+        setTheme(userTheme);
     }
 
     private void setModel(int num) {
@@ -463,7 +467,45 @@ public class OpenFileGUI extends JFrame {
         }
     }
 
-    private void setTheme() {
+    private void setColors(int theme) {
+        switch (theme) {
+            case 0:
+                mainColor = Color.decode("#0b1622");
+                accentColor = Color.decode("#0b1622");
+                altColor = Color.decode("#152232");
+                textColor = Color.decode("#d3d5f3");
+                altTextColor = Color.decode("#d3d5f3");
+                barColor = Color.decode("#919191");
+                if (darkTheme != null) darkTheme.setSelected(true);
+                userTheme = 0;
+                break;
+            case 1:
+                mainColor = Color.decode("#edf1f5");;
+                accentColor = Color.decode("#edf1f5");
+                altColor = Color.decode("#fafafa");;
+                textColor = Color.decode("#5C728A");
+                altTextColor = Color.decode("#5C728A");
+                barColor = Color.decode("#919191");
+                if (darkTheme != null) lightTheme.setSelected(true);
+                userTheme = 1;
+                break;
+            case 2:
+                mainColor = Color.decode("#0b1622");
+                accentColor = Color.decode("#3db4f2");
+                altColor = Color.decode("#152232");
+                textColor = Color.decode("#d3d5f3");
+                altTextColor = Color.WHITE;
+                barColor = accentColor;
+                if (anilistTheme != null) anilistTheme.setSelected(true);
+                userTheme = 2;
+                break;
+        }
+    }
+    
+    private void setTheme(int theme) {
+        
+        setColors(theme);
+        userTheme = theme;
         
         menuBar.setBackground(altColor);
         imageSpace.setBackground(mainColor);
@@ -476,19 +518,23 @@ public class OpenFileGUI extends JFrame {
         styleLabel.setForeground(textColor);
         dreamModelLabel.setForeground(textColor);
         helpMenu.setForeground(textColor);
-        styleSelect.setBackground(mainColor);
-        styleSelect.setForeground(textColor);
-        layer1Select.setBackground(mainColor);
-        layer2Select.setBackground(mainColor);
-        layer1Select.setForeground(textColor);
-        layer2Select.setForeground(textColor);
-        depthSelect.setBackground(mainColor);
-        depthSelect.setForeground(textColor);
-        dreamButton.setBackground(mainColor);
-        dreamButton.setForeground(textColor);
-        resetButton.setBackground(mainColor);
-        resetButton.setForeground(textColor);
-        if(dreamProgress != null) dreamProgress.setBackground(mainColor);
+        styleSelect.setBackground(accentColor);
+        styleSelect.setForeground(altTextColor);
+        layer1Select.setBackground(accentColor);
+        layer2Select.setBackground(accentColor);
+        layer1Select.setForeground(altTextColor);
+        layer2Select.setForeground(altTextColor);
+        depthSelect.setBackground(accentColor);
+        depthSelect.setForeground(altTextColor);
+        dreamButton.setBackground(accentColor);
+        dreamButton.setForeground(altTextColor);
+        resetButton.setBackground(accentColor);
+        resetButton.setForeground(altTextColor);
+        if(dreamProgress != null) {
+            dreamProgress.setForeground(barColor);
+            dreamProgress.setBackground(mainColor);
+        }
+        
     }
 
     private void setStyle() {
@@ -501,7 +547,6 @@ public class OpenFileGUI extends JFrame {
                 }
             }
         }
-        stylePref = styleSelect.getSelectedItem().toString();
     }
 
 
@@ -797,19 +842,6 @@ public class OpenFileGUI extends JFrame {
                 case ("save"):
                     if (output != null) saveImage(output);
                     break;
-                case ("theme"):
-                    if (setColorMenu.isSelected()) {
-                        //store in settings
-                        lightMode = true;
-                        setColors();
-                        setTheme();
-                    } else {
-                        //store in settings
-                        lightMode = false;
-                        setColors();
-                        setTheme();
-                    }
-                    break;
                 case ("advanced"):
                     if (advancedItem.isSelected()) {
                         depthSelect.setSelectedIndex(3);
@@ -1056,7 +1088,7 @@ class DreamProgress extends SwingWorker<Void, Void> {
         OpenFileGUI.dreamProgress.setFont(new Font("Sans", Font.BOLD, 20));
         
         OpenFileGUI.dreamProgress.setBackground(OpenFileGUI.mainColor);
-        OpenFileGUI.dreamProgress.setForeground(Color.decode("#6382bf"));
+        OpenFileGUI.dreamProgress.setForeground(OpenFileGUI.barColor);
         OpenFileGUI.dreamProgress.setBorderPainted(false);
 
         OpenFileGUI.imageSpace.add(OpenFileGUI.dreamProgress, BorderLayout.SOUTH);
