@@ -86,6 +86,13 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void setupGUI() {
+        try {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("Roboto.ttf")));
+        } catch (Exception noFont) {
+            System.out.println("Can't find font!");
+        }
+        
         // create app window
         appWindow = new JFrame("DeepDreamer");
         appWindow.setLayout(new BorderLayout());
@@ -114,7 +121,7 @@ public class OpenFileGUI extends JFrame {
         // file options
         fileMenu = new JMenu("File");
         fileMenu.setForeground(textColor);
-        fileMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        fileMenu.setFont(new Font("Roboto", Font.BOLD, 12));
         JMenuItem openItem = new JMenuItem("Open File...");
         JMenuItem urlItem = new JMenuItem("Open URL...");
         JMenuItem saveItem = new JMenuItem("Save as...");
@@ -125,11 +132,11 @@ public class OpenFileGUI extends JFrame {
         // settings options
         settingsMenu = new JMenu("Settings");
         settingsMenu.setForeground(textColor);
-        settingsMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        settingsMenu.setFont(new Font("Roboto", Font.BOLD, 12));
 
         // color Selection
         setColorMenu = new JMenu("Theme");
-        setColorMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        setColorMenu.setFont(new Font("Roboto", Font.BOLD, 12));
         setColorMenu.setForeground(Color.BLACK);
         ButtonGroup colorGroup = new ButtonGroup();
         darkTheme = new JRadioButtonMenuItem("Dark");
@@ -150,7 +157,7 @@ public class OpenFileGUI extends JFrame {
 
         // model selection
         setModelMenu = new JMenu("Dream Models");
-        setModelMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        setModelMenu.setFont(new Font("Roboto", Font.BOLD, 12));
         setModelMenu.setForeground(Color.BLACK);
         ButtonGroup modelGroup = new ButtonGroup();
         mobilenetv2 = new JRadioButtonMenuItem("MobileNetV2", true);
@@ -176,7 +183,7 @@ public class OpenFileGUI extends JFrame {
         // get help
         helpMenu = new JMenu("Help");
         helpMenu.setForeground(textColor);
-        helpMenu.setFont(new Font("Sans", Font.BOLD, 12));
+        helpMenu.setFont(new Font("Roboto", Font.BOLD, 12));
         JMenuItem infoItem = new JMenuItem("How This Works");
         helpMenu.add(infoItem);
 
@@ -189,7 +196,7 @@ public class OpenFileGUI extends JFrame {
         modelLabelPanel = new JPanel(new BorderLayout());
         modelLabelPanel.setBackground(altColor);
         modelLabelPanel.setBorder(new EmptyBorder(0, 0, 0, 8));
-        modelLabelPanel.setFont(new Font("Sans", Font.BOLD, 12));
+        modelLabelPanel.setFont(new Font("Roboto", Font.BOLD, 12));
         dreamModelLabel = new JLabel("Model: MobileNetV2");
         dreamModelLabel.setForeground(textColor);
         dreamModelLabel.setToolTipText("Current model being used. Please review \"Help.\" for more details.");
@@ -221,7 +228,7 @@ public class OpenFileGUI extends JFrame {
         // style selection ui
         styleLabel = new JLabel("Filter");
         styleLabel.setForeground(textColor);
-        styleLabel.setFont(new Font("Sans", Font.PLAIN, 14));
+        styleLabel.setFont(new Font("Roboto", Font.PLAIN, 16));
 
         // instantiate presets
         stylePresets = new ArrayList<ArrayList<String>>();
@@ -253,9 +260,10 @@ public class OpenFileGUI extends JFrame {
         styleSelect.setBackground(accentColor);
         styleSelect.setForeground(altTextColor);
         styleSelect.setPreferredSize(new Dimension(90, 30));
-        styleSelect.setFont(new Font("Sans", Font.BOLD, 14));
+        styleSelect.setFont(new Font("Roboto", Font.BOLD, 16));
         userOptions.add(styleLabel);
         userOptions.add(styleSelect);
+        userOptions.add(Box.createHorizontalStrut(6));
 
         // instantiate layer options
         layer1Options = new DefaultComboBoxModel<String>(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
@@ -264,15 +272,15 @@ public class OpenFileGUI extends JFrame {
         // layer selection
         layerLabel = new JLabel("Layers");
         layerLabel.setForeground(textColor);
-        layerLabel.setFont(new Font("Sans", Font.PLAIN, 14));
+        layerLabel.setFont(new Font("Roboto", Font.PLAIN, 16));
 
         layer1Select = new JComboBox<String>(layer1Options);
         layer1Select.setPreferredSize(new Dimension(45, 30));
-        layer1Select.setFont(new Font("Sans", Font.BOLD, 14));
+        layer1Select.setFont(new Font("Roboto", Font.BOLD, 16));
         layer2Select = new JComboBox<String>(layer2Options);
         layer2Select.setPreferredSize(new Dimension(45, 30));
-        layer2Select.setFont(new Font("Sans", Font.BOLD, 14));
-        layer2Select.add(Box.createHorizontalStrut(4));
+        layer2Select.setFont(new Font("Roboto", Font.BOLD, 16));
+
         layer1Select.setBackground(accentColor);
         layer2Select.setBackground(accentColor);
         layer1Select.setForeground(altTextColor);
@@ -285,44 +293,48 @@ public class OpenFileGUI extends JFrame {
         depthLabel = new JLabel("Depth");
         depthLabel.setForeground(textColor);
 
-        depthLabel.setFont(new Font("Sans", Font.PLAIN, 14));
+        depthLabel.setFont(new Font("Roboto", Font.PLAIN, 16));
 
         depthSelect = new JComboBox<String>(depthOptions);
         depthSelect.setBackground(accentColor);
         depthSelect.setForeground(altTextColor);
         depthSelect.setPreferredSize(new Dimension(45, 30));
-        depthSelect.setFont(new Font("Sans", Font.BOLD, 14));
+        depthSelect.setFont(new Font("Roboto", Font.BOLD, 16));
         
         // add all options
         userOptions.add(layerLabel);
         userOptions.add(layer1Select);
         userOptions.add(layer2Select);
+        userOptions.add(Box.createHorizontalStrut(6));
         userOptions.add(depthLabel);
         userOptions.add(depthSelect);
+        userOptions.add(Box.createHorizontalStrut(6));
         layerLabel.setVisible(false);
         layer1Select.setVisible(false);
         layer2Select.setVisible(false);
         depthLabel.setVisible(false);
         depthSelect.setVisible(false);
 
+        userOptions.getComponent(7).setVisible(false);
+        userOptions.getComponent(10).setVisible(false);
+
         // dreamify button
-        userOptions.add(Box.createHorizontalStrut(4));
         dreamButton = new JButton("Dreamify");
         dreamButton.setBackground(accentColor);
         dreamButton.setForeground(altTextColor);
         dreamButton.setPreferredSize(new Dimension(100, 30));
-        dreamButton.setFont(new Font("Sans", Font.BOLD, 14));
+        dreamButton.setFont(new Font("Roboto", Font.BOLD, 16));
         dreamButton.setEnabled(false);
         userOptions.add(dreamButton);
         dreamButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         // reset button
-        userOptions.add(Box.createHorizontalStrut(4));
+        userOptions.add(Box.createHorizontalStrut(6));
         resetButton = new JButton("Reset");
         resetButton.setBackground(accentColor);
         resetButton.setForeground(altTextColor);
         resetButton.setPreferredSize(new Dimension(100, 30));
-        resetButton.setFont(new Font("Sans", Font.BOLD, 14));
+        resetButton.setFont(new Font("Roboto", Font.BOLD, 16));
         resetButton.setEnabled(false);
         userOptions.add(resetButton);
         dreamButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -850,6 +862,8 @@ public class OpenFileGUI extends JFrame {
                         layerLabel.setVisible(true);
                         layer1Select.setVisible(true);
                         layer2Select.setVisible(true);
+                        userOptions.getComponent(7).setVisible(true);
+                        userOptions.getComponent(10).setVisible(true);
                         depthLabel.setVisible(true);
                         depthSelect.setVisible(true);
 
@@ -868,6 +882,8 @@ public class OpenFileGUI extends JFrame {
                         layerLabel.setVisible(false);
                         layer1Select.setVisible(false);
                         layer2Select.setVisible(false);
+                        userOptions.getComponent(7).setVisible(false);
+                        userOptions.getComponent(10).setVisible(false);
                         depthLabel.setVisible(false);
                         depthSelect.setVisible(false);
                         styleSelect.removeItem("Custom");
@@ -937,11 +953,11 @@ public class OpenFileGUI extends JFrame {
 
                     JComboBox<String> layerList1 = new JComboBox<String>(layer1Options);
                     layerList1.setPreferredSize(new Dimension(45, 30));
-                    layerList1.setFont(new Font("Sans", Font.BOLD, 14));
+                    layerList1.setFont(new Font("Roboto", Font.BOLD, 16));
 
                     JComboBox<String> layerList2 = new JComboBox<String>(layer2Options);
                     layerList2.setPreferredSize(new Dimension(45, 30));
-                    layerList2.setFont(new Font("Sans", Font.BOLD, 14));
+                    layerList2.setFont(new Font("Roboto", Font.BOLD, 16));
                     
                     // name input
                     JLabel nameLabel = new JLabel("Name");
@@ -1058,7 +1074,7 @@ class ImageLoader extends SwingWorker<Void, Void> {
         // add loading image text
         OpenFileGUI.imageSpace.removeAll();
         JLabel imageLoading = new JLabel("Loading image...", SwingConstants.CENTER);
-        imageLoading.setFont(new Font("Sans", Font.BOLD, 20));
+        imageLoading.setFont(new Font("Roboto", Font.BOLD, 20));
         imageLoading.setForeground(Color.decode("#d3d5f3"));
         OpenFileGUI.imageSpace.add(imageLoading);
         OpenFileGUI.imageSpace.revalidate();
@@ -1085,7 +1101,7 @@ class DreamProgress extends SwingWorker<Void, Void> {
         OpenFileGUI.dreamProgress.setOpaque(true);
         OpenFileGUI.dreamProgress.setStringPainted(true);
         OpenFileGUI.dreamProgress.setString("Dreamifying image... 0%");
-        OpenFileGUI.dreamProgress.setFont(new Font("Sans", Font.BOLD, 20));
+        OpenFileGUI.dreamProgress.setFont(new Font("Roboto", Font.BOLD, 20));
         
         OpenFileGUI.dreamProgress.setBackground(OpenFileGUI.mainColor);
         OpenFileGUI.dreamProgress.setForeground(OpenFileGUI.barColor);
