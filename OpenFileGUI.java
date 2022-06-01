@@ -75,9 +75,12 @@ public class OpenFileGUI extends JFrame {
     private int[] layersSave;
     Preferences user;
     int[] layers = new int[2];
+
     JRadioButtonMenuItem darkTheme;
     JRadioButtonMenuItem lightTheme;
     JRadioButtonMenuItem anilistTheme;
+    // ADD YOUR THEME HERE
+
     int userTheme;
 
 
@@ -143,11 +146,13 @@ public class OpenFileGUI extends JFrame {
         lightTheme = new JRadioButtonMenuItem("Light");
         anilistTheme = new JRadioButtonMenuItem("AniList");
         colorGroup.add(darkTheme);
-        colorGroup.add(lightTheme);
-        colorGroup.add(anilistTheme);
         setColorMenu.add(darkTheme);
+        colorGroup.add(lightTheme);
         setColorMenu.add(lightTheme);
+        colorGroup.add(anilistTheme);
         setColorMenu.add(anilistTheme);
+        // ADD YOUR THEME HERE
+
         settingsMenu.add(setColorMenu);
 
         // advanced
@@ -378,9 +383,11 @@ public class OpenFileGUI extends JFrame {
         inceptionv3.addActionListener(e -> changeModel(1));
         xception.addActionListener(e -> changeModel(2));
         resnet50.addActionListener(e -> changeModel(3));
+        
         darkTheme.addActionListener(e -> setTheme(0));
         lightTheme.addActionListener(e -> setTheme(1));
         anilistTheme.addActionListener(e -> setTheme(2));
+        // ADD YOUR THEME HERE
 
         //load settings
         loadPreferences();
@@ -481,6 +488,7 @@ public class OpenFileGUI extends JFrame {
 
     private void setColors(int theme) {
         switch (theme) {
+            // dark theme
             case 0:
                 mainColor = Color.decode("#0b1622");
                 accentColor = Color.decode("#0b1622");
@@ -491,6 +499,7 @@ public class OpenFileGUI extends JFrame {
                 if (darkTheme != null) darkTheme.setSelected(true);
                 userTheme = 0;
                 break;
+            // light theme
             case 1:
                 mainColor = Color.decode("#edf1f5");;
                 accentColor = Color.decode("#edf1f5");
@@ -501,6 +510,7 @@ public class OpenFileGUI extends JFrame {
                 if (darkTheme != null) lightTheme.setSelected(true);
                 userTheme = 1;
                 break;
+            // anilist theme
             case 2:
                 mainColor = Color.decode("#0b1622");
                 accentColor = Color.decode("#3db4f2");
@@ -511,6 +521,7 @@ public class OpenFileGUI extends JFrame {
                 if (anilistTheme != null) anilistTheme.setSelected(true);
                 userTheme = 2;
                 break;
+            // ADD YOUR THEME HERE
         }
     }
     
