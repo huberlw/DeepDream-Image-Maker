@@ -142,9 +142,12 @@ public class OpenFileGUI extends JFrame {
         setColorMenu.setFont(new Font("Roboto", Font.BOLD, 12));
         setColorMenu.setForeground(Color.BLACK);
         ButtonGroup colorGroup = new ButtonGroup();
+        
         darkTheme = new JRadioButtonMenuItem("Dark");
         lightTheme = new JRadioButtonMenuItem("Light");
         anilistTheme = new JRadioButtonMenuItem("AniList");
+        // ADD YOUR THEME HERE
+        
         colorGroup.add(darkTheme);
         setColorMenu.add(darkTheme);
         colorGroup.add(lightTheme);
