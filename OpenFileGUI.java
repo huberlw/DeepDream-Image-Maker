@@ -79,6 +79,7 @@ public class OpenFileGUI extends JFrame {
     JRadioButtonMenuItem darkTheme;
     JRadioButtonMenuItem lightTheme;
     JRadioButtonMenuItem anilistTheme;
+    JRadioButtonMenuItem redTheme;
     // ADD YOUR THEME HERE
 
     int userTheme;
@@ -146,6 +147,7 @@ public class OpenFileGUI extends JFrame {
         darkTheme = new JRadioButtonMenuItem("Dark");
         lightTheme = new JRadioButtonMenuItem("Light");
         anilistTheme = new JRadioButtonMenuItem("AniList");
+        redTheme = new JRadioButtonMenuItem("Rage");
         // ADD YOUR THEME HERE
         
         colorGroup.add(darkTheme);
@@ -154,6 +156,8 @@ public class OpenFileGUI extends JFrame {
         setColorMenu.add(lightTheme);
         colorGroup.add(anilistTheme);
         setColorMenu.add(anilistTheme);
+        colorGroup.add(redTheme);
+        setColorMenu.add(redTheme);
         // ADD YOUR THEME HERE
 
         settingsMenu.add(setColorMenu);
@@ -387,9 +391,11 @@ public class OpenFileGUI extends JFrame {
         xception.addActionListener(e -> changeModel(2));
         resnet50.addActionListener(e -> changeModel(3));
         
+        //Theme listeners
         darkTheme.addActionListener(e -> setTheme(0));
         lightTheme.addActionListener(e -> setTheme(1));
         anilistTheme.addActionListener(e -> setTheme(2));
+        redTheme.addActionListener(e -> setTheme(3));
         // ADD YOUR THEME HERE
 
         //load settings
@@ -523,6 +529,17 @@ public class OpenFileGUI extends JFrame {
                 barColor = accentColor;
                 if (anilistTheme != null) anilistTheme.setSelected(true);
                 userTheme = 2;
+                break;
+            //red theme
+            case 3:
+                mainColor = Color.decode("#5D1718");
+                accentColor = Color.decode("#5D1718");
+                altColor = Color.decode("#FF0005");
+                textColor = Color.decode("#00000");
+                altTextColor = Color.RED;
+                barColor = accentColor;
+                if (redTheme != null) redTheme.setSelected(true);
+                userTheme = 3;
                 break;
             // ADD YOUR THEME HERE
         }
