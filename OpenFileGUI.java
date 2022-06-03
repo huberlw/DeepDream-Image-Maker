@@ -80,6 +80,7 @@ public class OpenFileGUI extends JFrame {
     JRadioButtonMenuItem lightTheme;
     JRadioButtonMenuItem anilistTheme;
     JRadioButtonMenuItem redTheme;
+    JRadioButtonMenuItem cactusTheme;
     // ADD YOUR THEME HERE
 
     int userTheme;
@@ -148,6 +149,7 @@ public class OpenFileGUI extends JFrame {
         lightTheme = new JRadioButtonMenuItem("Light");
         anilistTheme = new JRadioButtonMenuItem("AniList");
         redTheme = new JRadioButtonMenuItem("Rage");
+        cactusTheme = new JRadioButtonMenuItem("Cactus");
         // ADD YOUR THEME HERE
         
         colorGroup.add(darkTheme);
@@ -158,6 +160,8 @@ public class OpenFileGUI extends JFrame {
         setColorMenu.add(anilistTheme);
         colorGroup.add(redTheme);
         setColorMenu.add(redTheme);
+        colorGroup.add(cactusTheme);
+        setColorMenu.add(cactusTheme);
         // ADD YOUR THEME HERE
 
         settingsMenu.add(setColorMenu);
@@ -396,6 +400,7 @@ public class OpenFileGUI extends JFrame {
         lightTheme.addActionListener(e -> setTheme(1));
         anilistTheme.addActionListener(e -> setTheme(2));
         redTheme.addActionListener(e -> setTheme(3));
+        cactusTheme.addActionListener(e -> setTheme(4));
         // ADD YOUR THEME HERE
 
         //load settings
@@ -540,6 +545,16 @@ public class OpenFileGUI extends JFrame {
                 barColor = accentColor;
                 if (redTheme != null) redTheme.setSelected(true);
                 userTheme = 3;
+                break;
+            case 4:
+                mainColor = Color.decode("#9DC88D");
+                accentColor = Color.decode("#164A41");
+                altColor = Color.decode("#4D774E");
+                textColor = Color.WHITE;
+                altTextColor = Color.WHITE;
+                barColor = accentColor;
+                if (cactusTheme != null) cactusTheme.setSelected(true);
+                userTheme = 4;
                 break;
             // ADD YOUR THEME HERE
         }
