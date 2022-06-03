@@ -466,8 +466,8 @@ public class OpenFileGUI extends JFrame {
         depthSelect.setSelectedIndex(depthTemp);
         // model
         setModel(user.getInt("model", 0));
-        // style
-        styleSelect.setSelectedItem(styleSave);
+        // style -- line under this one currently busted idk
+        //styleSelect.setSelectedItem(styleSave);
         setStyle();
         // layers
         layer1Select.setSelectedIndex(layersSave[0]);
@@ -510,13 +510,13 @@ public class OpenFileGUI extends JFrame {
                 break;
             // light theme
             case 1:
-                mainColor = Color.decode("#edf1f5");;
+                mainColor = Color.decode("#edf1f5");
                 accentColor = Color.decode("#edf1f5");
-                altColor = Color.decode("#fafafa");;
+                altColor = Color.decode("#fafafa");
                 textColor = Color.decode("#5C728A");
                 altTextColor = Color.decode("#5C728A");
                 barColor = Color.decode("#919191");
-                if (darkTheme != null) lightTheme.setSelected(true);
+                if (lightTheme != null) lightTheme.setSelected(true);
                 userTheme = 1;
                 break;
             // anilist theme
@@ -581,6 +581,7 @@ public class OpenFileGUI extends JFrame {
     }
 
     private void setStyle() {
+        if (styleSelect == null) return;
         if (!styleSelect.getSelectedItem().equals("Custom")) {
             for (int i = 0; i < stylePresets.get(dreamModel).size(); i++) {
                 if ((styleSelect.getSelectedItem()).equals(stylePresets.get(dreamModel).get(i))) {
