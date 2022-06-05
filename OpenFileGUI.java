@@ -346,7 +346,7 @@ public class OpenFileGUI extends JFrame {
         dreamButton = new JButton("Dreamify");
         dreamButton.setBackground(accentColor);
         dreamButton.setForeground(altTextColor);
-        dreamButton.setPreferredSize(new Dimension(100, 30));
+        dreamButton.setPreferredSize(new Dimension(120, 30));
         dreamButton.setFont(new Font("Roboto", Font.BOLD, 16));
         dreamButton.setEnabled(false);
         userOptions.add(dreamButton);
